@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/tai-de/tinyapp/issues"
   },
-  "homepage": "https://github.com/tai-de/tinyapp#readme"
+  "homepage": "https://github.com/tai-de/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
