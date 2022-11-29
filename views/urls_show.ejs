@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
 
+  <!-- Google Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
+    
   <title>URL - TinyApp Example</title>
 </head>
 
@@ -32,11 +35,11 @@
         <h5 class="card-title">Edit</h5>
         <form class="form-inline justify-content-center" action="/urls/<%= id %>" method="POST">
           <div class="form-group mb-2">
-            <div class="input-group input-group-sm mb-3">
+            <div class="input-group mb-3">
               <label for="longURL">Enter new URL:&emsp;</label>
-              <input type="text" class="form-control" name="longURL" placeholder="http://" required>
+              <input type="text" class="form-control" name="longURL" value="<%= longURL %>" pattern="https://.*|http://.*" style="width: 250px" required>
               <div class="input-group-append">
-                <button class="btn btn-outline-success" type="submit">Save</button>
+                <button class="btn btn-outline-success" type="submit"><span class="material-symbols-outlined" style="vertical-align: bottom">save</span> Save</button>
               </div>
             </div>
           </div>
