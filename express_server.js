@@ -25,8 +25,18 @@ const users = {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longUrl: "http://www.lighthouselabs.ca",
+    userId: "userRandomID",
+  },
+  "9sm5xK": {
+    longUrl: "http://www.google.com",
+    userId: "userRandomID",
+  },
+  "b6UTxQ": {
+    longUrl: "https://www.tsn.ca",
+    userId: "user2RandomID",
+  },
 };
 
 const generateRandomString = function(length) {
@@ -48,6 +58,19 @@ const userLookup = function(value, key = 'email', target = 'email') {
     }
   }
   return false;
+};
+
+// returns urls filtered by userId
+const urlsForUser = function(userId) {
+  const filteredUrlDb = {};
+  for (const key in urlDatabase) {
+    const urlObj = urlDatabase[key];
+    const urlOwner = urlDatabase[key].userId;
+    if (urlOwner === userId) {
+      filteredUrlDb[key] = urlObj;
+    }
+  }
+  return filteredUrlDb;
 };
 
 //
@@ -81,13 +104,20 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  const userId = req.cookies['user_id'];
+  const templateVars = { urls: urlsForUser(userId), user: users[userId] };
+
+  if (!userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
+    return res.render("urls_error", errorVars);
+  }
+
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
   const userId = req.cookies['user_id'];
+  const templateVars = { user: users[userId] };
 
   if (!userId) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
@@ -107,10 +137,20 @@ app.get("/urls/:id/n", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get(["/urls/:id","/urls/:id/edit"], (req, res) => {
+app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const shortUrl = req.params.id;
   const userId = req.cookies['user_id'];
   const editStatus = req.path.indexOf("/edit") > -1;
+
+  if (!userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
+    return res.render("urls_error", errorVars);
+  }
+
+  if (!userId !== urlDatabase[shortUrl].userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' } };
+    return res.render("urls_error", errorVars);
+  }
 
   if (!urlDatabase[shortUrl] && userId) {
     res.redirect('/urls/new');
@@ -119,7 +159,7 @@ app.get(["/urls/:id","/urls/:id/edit"], (req, res) => {
     res.redirect('/login');
   };
 
-  const templateVars = { id: shortUrl, longURL: urlDatabase[shortUrl], user: users[req.cookies['user_id']], edit: editStatus };
+  const templateVars = { id: shortUrl, longURL: urlDatabase[shortUrl].longUrl, user: users[req.cookies['user_id']], edit: editStatus };
   res.render("urls_show", templateVars);
 });
 
@@ -132,7 +172,7 @@ app.get("/u/:id", (req, res) => {
     return res.render("urls_error", errorVars);
   };
 
-  const longUrl = urlDatabase[shortUrl];
+  const longUrl = urlDatabase[shortUrl].longUrl;
   res.redirect(longUrl);
 });
 
@@ -157,7 +197,7 @@ app.post("/urls", (req, res) => {
 
   const shortUrl = generateRandomString(6);
   const longUrl = req.body["longURL"];
-  urlDatabase[shortUrl] = longUrl;
+  urlDatabase[shortUrl].longUrl = longUrl;
   res.redirect(`/urls/${shortUrl}/n`);
 });
 
@@ -165,7 +205,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = req.body["longURL"];
-  urlDatabase[shortUrl] = longUrl;
+  urlDatabase[shortUrl].longUrl = longUrl;
   res.redirect(`/urls/${shortUrl}/u`);
 });
 
