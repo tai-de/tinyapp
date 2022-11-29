@@ -203,15 +203,49 @@ app.post("/urls", (req, res) => {
 
 // update existing url
 app.post("/urls/:id", (req, res) => {
+  const userId = req.cookies['user_id'];
   const shortUrl = req.params.id;
   const longUrl = req.body["longURL"];
+
+  if (!userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
+    return res.render("urls_error", errorVars);
+  }
+
+  if (!urlDatabase[shortUrl]) {
+    const errorVars = { code: 404, message: 'Not found! This short URL does not exist.' };
+    return res.render("urls_error", errorVars);
+  }
+
+  if (!userId !== urlDatabase[shortUrl].userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
+    return res.render("urls_error", errorVars);
+  }
+
   urlDatabase[shortUrl].longUrl = longUrl;
   res.redirect(`/urls/${shortUrl}/u`);
 });
 
 // delete existing url
 app.post("/urls/:id/delete", (req, res) => {
+  const userId = req.cookies['user_id'];
   const shortUrl = req.params.id;
+
+  if (!userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
+    return res.render("urls_error", errorVars);
+  }
+
+  if (!urlDatabase[shortUrl]) {
+    const errorVars = { code: 404, message: 'Not found! This short URL does not exist.' };
+    return res.render("urls_error", errorVars);
+  }
+
+  if (!userId !== urlDatabase[shortUrl].userId) {
+    const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
+    return res.render("urls_error", errorVars);
+  }
+
   delete urlDatabase[shortUrl];
   res.redirect(`/urls`);
 });
