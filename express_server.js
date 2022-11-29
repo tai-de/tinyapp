@@ -38,7 +38,16 @@ const generateRandomString = function(length) {
   return newKey;
 };
 
-console.log(generateRandomString());
+// user lookup, given a value to search for and an optional key (default is email)
+// will return true if user is found
+const userLookup = function(value, key = 'email') {
+  for (const user in users) {
+    if (users[user][key] === value) {
+      return true;
+    }
+  }
+  return false;
+};
 
 //
 // ROUTES FOR GET REQ
@@ -123,7 +132,14 @@ app.post("/register", (req, res) => {
   const userEmail = req.body["email"];
   const userUsername = req.body["username"];
   const userPassword = req.body["password"];
-  users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword }
+
+  if (userEmail === '' || userUsername === '' || userPassword === '') {
+    return res.status(400).send('Error 400 - Invalid entries: Enter all fields!');
+  }
+  if (userLookup(userEmail)) {
+    return res.status(400).send('Error 400 - Invalid entry: Email address in use!');
+  }
+  users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
   console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}, password: ${userPassword}`);
   res.cookie('user_id', userId);
   res.redirect(`/urls`);
