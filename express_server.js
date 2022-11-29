@@ -138,8 +138,8 @@ app.get("/urls/:id/n", (req, res) => {
 });
 
 app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
-  const shortUrl = req.params.id;
   const userId = req.cookies['user_id'];
+  const shortUrl = req.params.id;
   const editStatus = req.path.indexOf("/edit") > -1;
 
   if (!userId) {
@@ -147,7 +147,7 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
     return res.render("urls_error", errorVars);
   }
 
-  if (!userId !== urlDatabase[shortUrl].userId) {
+  if (userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' } };
     return res.render("urls_error", errorVars);
   }
@@ -198,7 +198,7 @@ app.post("/urls", (req, res) => {
   const shortUrl = generateRandomString(6);
   const longUrl = req.body["longURL"];
   urlDatabase[shortUrl].longUrl = longUrl;
-  res.redirect(`/urls/${shortUrl}/n`);
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 // update existing url
@@ -217,13 +217,13 @@ app.post("/urls/:id", (req, res) => {
     return res.render("urls_error", errorVars);
   }
 
-  if (!userId !== urlDatabase[shortUrl].userId) {
+  if (userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
     return res.render("urls_error", errorVars);
   }
 
   urlDatabase[shortUrl].longUrl = longUrl;
-  res.redirect(`/urls/${shortUrl}/u`);
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 // delete existing url
@@ -241,7 +241,7 @@ app.post("/urls/:id/delete", (req, res) => {
     return res.render("urls_error", errorVars);
   }
 
-  if (!userId !== urlDatabase[shortUrl].userId) {
+  if (userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
     return res.render("urls_error", errorVars);
   }
