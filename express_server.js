@@ -40,13 +40,23 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// add new url
 app.post("/urls", (req, res) => {
-  const longUrl = req.body["longURL"];
   const shortUrl = generateRandomString();
+  const longUrl = req.body["longURL"];
   urlDatabase[shortUrl] = longUrl;
   res.redirect(`/urls/${shortUrl}`);
 });
 
+// update existing url
+app.post("/urls/:id", (req, res) => {
+  const shortUrl = req.params.id;
+  const longUrl = req.body["longURL"];
+  urlDatabase[shortUrl] = longUrl;
+  res.redirect(`/urls`);
+});
+
+// delete existing url
 app.post("/urls/:id/delete", (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
@@ -54,23 +64,17 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
+// redirect from /u/id to long url
 app.get("/u/:id", (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = urlDatabase[shortUrl];
   res.redirect(longUrl);
 });
 
+// 404/catch-all
 app.get("*", (req, res) => {
   res.redirect('/urls');
 });
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

@@ -28,7 +28,20 @@
           </a>
         </p>
       </div>
-      <div class="card-footer text-muted"></div>
+      <div class="card-footer text-muted">
+        <h5 class="card-title">Edit</h5>
+        <form class="form-inline justify-content-center" action="/urls/<%= id %>" method="POST">
+          <div class="form-group mb-2">
+            <div class="input-group input-group-sm mb-3">
+              <label for="longURL">Enter new URL:&emsp;</label>
+              <input type="text" class="form-control" name="longURL" placeholder="http://" required>
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Save</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Bootstrap JS -->
