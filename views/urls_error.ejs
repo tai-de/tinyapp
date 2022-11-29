@@ -14,7 +14,7 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
 
-  <title>New URL - TinyApp Example</title>
+  <title>Error - TinyApp Example</title>
 </head>
 
 <body>
@@ -23,21 +23,20 @@
 
     <main style="margin: 1em;">
       <div class="card" style="width: 36rem;">
-        <div class="card-header">
-          <h4>Create TinyURL</h4>
-        </div>
-        <div class="card-body form-group">
-          <form class="form-inline" action="/urls" method="POST">
-            <div class="form-group mb-2 input-group mb-3">
-              <label for="longURL">Enter a URL:&emsp;</label>
-              <input type="text" class="form-control" name="longURL" placeholder="http://"
-                pattern="https://.*|http://.*" style="width: 300px" required>
-              <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="submit"><span class="material-symbols-outlined"
-                    style="vertical-align: bottom">add_circle</span> Create</button>
-              </div>
-            </div>
-          </form>
+        <div class="card-body">
+          <div class="jumbotron">
+            <h1 class="display-5">Error <%= code %>
+            </h1>
+            <hr class="my-4">
+            <p class="lead" style="padding-left: 20px;">
+              <%= message %>
+            </p>
+            <% if (typeof cta !=="undefined" ) { %>
+              <p class="lead" style="padding-left: 20px;"><a href="<%= cta.url %>">
+                  <%= cta.display %>
+                </a></p>
+              <% } %>
+          </div>
         </div>
       </div>
     </main>

@@ -37,13 +37,13 @@
       <% if (typeof user !== 'undefined') {%><span class="nav-item nav-link active">Welcome, <b><%= user.email %></b>!&emsp;</span>
       <form class="form-inline" action="/logout" method="POST">
         <div class="input-group">
-          <button type="submit" class="btn btn-outline-secondary"><span class="material-symbols-outlined" style="vertical-align: bottom">logout</span> Logout</button>
+          <button type="submit" class="btn btn-outline-secondary btn-sm"><span class="material-symbols-outlined" style="vertical-align: bottom">logout</span> Logout</button>
         </div>
       </form>
       <% } else { %>
         <div class="navbar-nav">
-          <a href="/login" class="btn btn-success" style="margin-right:10px;"><span class="material-symbols-outlined" style="vertical-align: bottom">login</span> Login</a>
-          <a href="/register" class="btn btn-primary"><span class="material-symbols-outlined" style="vertical-align: bottom">app_registration</span> Register</a>
+          <a href="/login" class="btn btn-success btn-sm" style="margin-right:10px;"><span class="material-symbols-outlined" style="vertical-align: bottom">login</span> Login</a>
+          <a href="/register" class="btn btn-primary btn-sm"><span class="material-symbols-outlined" style="vertical-align: bottom">app_registration</span> Register</a>
         </div>
       <% } %>
     </div>

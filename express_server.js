@@ -90,8 +90,8 @@ app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
 
   if (!userId) {
-    res.status(401).send('Error 401 - Unauthorized! Please login first.');
-    res.redirect('/login');
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
+    return res.render("urls_error", errorVars);
   }
 
   res.render("urls_new", templateVars);
@@ -107,21 +107,40 @@ app.get("/urls/:id/n", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies['user_id']] };
+app.get(["/urls/:id","/urls/:id/edit"], (req, res) => {
+  const shortUrl = req.params.id;
+  const userId = req.cookies['user_id'];
+  const editStatus = req.path.indexOf("/edit") > -1;
+
+  if (!urlDatabase[shortUrl] && userId) {
+    res.redirect('/urls/new');
+  };
+  if (!urlDatabase[shortUrl] && !userId) {
+    res.redirect('/login');
+  };
+
+  const templateVars = { id: shortUrl, longURL: urlDatabase[shortUrl], user: users[req.cookies['user_id']], edit: editStatus };
   res.render("urls_show", templateVars);
 });
 
 // redirect from /u/id to long url
 app.get("/u/:id", (req, res) => {
   const shortUrl = req.params.id;
+
+  if (!urlDatabase[shortUrl]) {
+    const errorVars = { code: 404, message: 'Not found! This short URL does not exist.' };
+    return res.render("urls_error", errorVars);
+  };
+
   const longUrl = urlDatabase[shortUrl];
   res.redirect(longUrl);
 });
 
 // 404/catch-all
 app.get("*", (req, res) => {
-  res.redirect('/urls');
+  // res.redirect('/urls');
+  const errorVars = { code: 404, message: 'Page not found.' };
+  return res.render("urls_error", errorVars);
 });
 
 //
@@ -133,7 +152,7 @@ app.post("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
 
   if (!userId) {
-    res.redirect('/login');
+    return res.redirect('/login');
   }
 
   const shortUrl = generateRandomString(6);
@@ -168,10 +187,12 @@ app.post("/register", (req, res) => {
   console.log('new registration attempt from:', userEmail);
 
   if (userEmail === '' || userUsername === '' || userPassword === '') {
-    return res.status(400).send('Error 400 - Invalid entries: Enter all fields!');
+    const errorVars = { code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: '/register', display: 'Click here to try again.' } };
+    return res.render("urls_error", errorVars);
   }
   if (userLookup(userEmail)) {
-    return res.status(400).send('Error 400 - Invalid entry: Email address in use!');
+    const errorVars = { code: 400, message: 'Invalid entry: Email address in use!', cta: { url: '/register', display: 'Click here to try again.' } };
+    return res.render("urls_error", errorVars);
   }
 
   users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
@@ -193,10 +214,12 @@ app.post("/login", (req, res) => {
   console.log('new login attempt from:', userId, loginEmail);
 
   if (userId === undefined) {
-    return res.status(403).send('Error 403 - Invalid entry: Email address does not exist!');
+    const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' } };
+    return res.render("urls_error", errorVars);
   }
   if (loginPass !== userPass) {
-    return res.status(403).send('Error 400 - Invalid entry: Password is incorrect!');
+    const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' } };
+    return res.render("urls_error", errorVars);
   }
 
   console.log('successful login from:', userId, loginEmail);
