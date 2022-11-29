@@ -60,11 +60,23 @@ app.get("/", (req, res) => {
 
 app.get("/register", (req, res) => {
   const templateVars = { user: users[req.cookies['user_id']] };
+  const userId = req.cookies['user_id'];
+
+  if (userId) {
+    res.redirect('/urls');
+  }
+
   res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
   const templateVars = { user: users[req.cookies['user_id']] };
+  const userId = req.cookies['user_id'];
+
+  if (userId) {
+    res.redirect('/urls');
+  }
+
   res.render("urls_login", templateVars);
 });
 
@@ -75,6 +87,13 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: users[req.cookies['user_id']] };
+  const userId = req.cookies['user_id'];
+
+  if (!userId) {
+    res.status(401).send('Error 401 - Unauthorized! Please login first.');
+    res.redirect('/login');
+  }
+
   res.render("urls_new", templateVars);
 });
 
@@ -111,6 +130,12 @@ app.get("*", (req, res) => {
 
 // add new url
 app.post("/urls", (req, res) => {
+  const userId = req.cookies['user_id'];
+
+  if (!userId) {
+    res.redirect('/login');
+  }
+
   const shortUrl = generateRandomString(6);
   const longUrl = req.body["longURL"];
   urlDatabase[shortUrl] = longUrl;
@@ -140,15 +165,19 @@ app.post("/register", (req, res) => {
   const userUsername = req.body["username"];
   const userPassword = req.body["password"];
 
+  console.log('new registration attempt from:', userEmail);
+
   if (userEmail === '' || userUsername === '' || userPassword === '') {
     return res.status(400).send('Error 400 - Invalid entries: Enter all fields!');
   }
   if (userLookup(userEmail)) {
     return res.status(400).send('Error 400 - Invalid entry: Email address in use!');
   }
+
   users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
   console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}, password: ${userPassword}`);
-  users[userId]._logins = [date]
+  users[userId]._logins = [date];
+
   res.cookie('user_id', userId);
   res.redirect(`/urls`);
 });
@@ -160,16 +189,20 @@ app.post("/login", (req, res) => {
   const loginPass = req.body["password"];
   const userId = userLookup(loginEmail, 'email', 'id');
   const userPass = userLookup(loginEmail, 'email', 'password');
+
   console.log('new login attempt from:', userId, loginEmail);
+
   if (userId === undefined) {
     return res.status(403).send('Error 403 - Invalid entry: Email address does not exist!');
   }
   if (loginPass !== userPass) {
     return res.status(403).send('Error 400 - Invalid entry: Password is incorrect!');
   }
+
   console.log('successful login from:', userId, loginEmail);
   users[userId]._logins ? users[userId]._logins.push(date) : users[userId]._logins = [date];
   console.log('login history:', users[userId]._logins);
+
   res.cookie('user_id', userId);
   res.redirect(`/urls`);
 });
