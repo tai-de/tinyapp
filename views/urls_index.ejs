@@ -36,13 +36,20 @@
                 <a href="/urls/<%= id %>">
                   <%= id %>
                 </a>
+                <% if(typeof newUrl !== "undefined" && id === newUrl) { %>
+                  <span class="badge badge-primary">new</span>
+                <% } %>
+                <% if(typeof updatedUrl !== "undefined" && id === updatedUrl) { %>
+                  <span class="badge badge-success">updated</span>
+                <% } %>
               </th>
               <td>
                 <%= urls[id] %>
               </td>
               <td>
                 <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-outline-primary" onclick="copyText(`http://localhost:8080/u/<%= id %>`)">Copy link</button>
+                  <button type="button" class="btn btn-outline-primary"
+                    onclick="copyText(`http://localhost:8080/u/<%= id %>`)">Copy link</button>
                 </div>
                 <div class="btn-group" role="group">
                   <a class="btn btn-outline-success" href="/urls/<%= id %>" role="button">Edit URL</a>
@@ -52,14 +59,12 @@
                     <button type="submit" class="btn btn-outline-danger">Delete record</button>
                   </form>
                 </div>
-              </td>
-              <td>
                 <script>
                   function copyText(input) {
-                      navigator.clipboard.writeText
-                          (input);
+                    navigator.clipboard.writeText
+                      (input);
                   }
-              </script>
+                </script>
               </td>
             </tr>
             <% } %>

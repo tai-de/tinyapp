@@ -35,6 +35,16 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/urls/:id/u", (req, res) => {
+  const templateVars = { urls: urlDatabase, updatedUrl: req.params.id };
+  res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:id/n", (req, res) => {
+  const templateVars = { urls: urlDatabase, newUrl: req.params.id };
+  res.render("urls_index", templateVars);
+});
+
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
@@ -45,7 +55,7 @@ app.post("/urls", (req, res) => {
   const shortUrl = generateRandomString();
   const longUrl = req.body["longURL"];
   urlDatabase[shortUrl] = longUrl;
-  res.redirect(`/urls/${shortUrl}`);
+  res.redirect(`/urls/${shortUrl}/n`);
 });
 
 // update existing url
@@ -53,7 +63,7 @@ app.post("/urls/:id", (req, res) => {
   const shortUrl = req.params.id;
   const longUrl = req.body["longURL"];
   urlDatabase[shortUrl] = longUrl;
-  res.redirect(`/urls`);
+  res.redirect(`/urls/${shortUrl}/u`);
 });
 
 // delete existing url
