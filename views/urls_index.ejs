@@ -33,6 +33,7 @@
               <tr>
                 <th scope="col" style="width: 175px;">Short URL ID</th>
                 <th scope="col">Long URL</th>
+                <th scope="col">Stats</th>
                 <th scope="col" style="min-width: 275px;">Options</th>
               </tr>
             </thead>
@@ -54,6 +55,23 @@
                     <%= urls[id].longUrl %>
                   </td>
                   <td>
+                    <button type="button" class="badge badge-primary" disabled>
+                      <small>Created</small> <span class="badge badge-light">
+                        <%= urls[id].created.toString().substring(0,10) %>
+                      </span>
+                    </button>
+                    <button type="button" class="badge badge-success" disabled>
+                      <small>Total hits</small> <span class="badge badge-light">
+                        <%= urls[id].hits %>
+                      </span>
+                    </button>
+                    <button type="button" class="badge badge-success" disabled>
+                      <small>Unique hits</small> <span class="badge badge-light">
+                        <%= urls[id].uniqueHits.length %>
+                      </span>
+                    </button>
+                  </td>
+                  <td>
                     <div class="btn-group" role="group">
                       <button type="button" class="btn btn-outline-primary btn-sm"
                         onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
@@ -65,8 +83,9 @@
                     </div>
                     <div class="btn-group" role="group">
                       <form method="POST" action="./urls/<%= id %>/delete">
-                        <button type="submit" class="btn btn-outline-danger btn-sm"><span class="material-symbols-outlined"
-                            style="vertical-align: bottom">delete</span> Delete</button>
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><span
+                            class="material-symbols-outlined" style="vertical-align: bottom">delete</span>
+                          Delete</button>
                       </form>
                     </div>
                     <script>

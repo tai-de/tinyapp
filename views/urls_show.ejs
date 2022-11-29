@@ -25,38 +25,81 @@
 
       <div class="card text-center" style="width: 36rem;">
         <div class="card-header">
-          <h4 class="card-title"><small class="text-muted">TinyURL for: </small><%= longURL %>
+          <h4 class="card-title"><small class="text-muted">TinyURL for: </small>
+            <%= urlObj.longUrl %>
           </h4>
         </div>
         <div class="card-body">
-          <p class="card-text">
-            Short URL ID: <a href="/u/<%= id %>">
-              <%= id %>
-            </a>
-          <div class="btn-group" role="group">
-            <button type="button" class="btn btn-outline-primary btn-sm"
-              onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
-                style="vertical-align: bottom">link</span> Copy link</button>
+          <div class="row align-items-center">
+            <div class="col-md-auto">
+              Short URL ID: <a href="/u/<%= id %>">
+                <%= id %>
+              </a>
+            </div>
+            <div class="col">
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-outline-primary btn-sm"
+                    onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
+                      style="vertical-align: bottom">link</span> Copy link</button>
+                </div>
+                <% if (!edit) { %>
+                  <div class="btn-group" role="group">
+                    <a class="btn btn-outline-success btn-sm" data-toggle="collapse" href="#collapseEdit" role="button"
+                      aria-expanded="false" aria-controls="collapseEdit"><span class="material-symbols-outlined"
+                        style="vertical-align: bottom">edit_square</span> Edit</a>
+                  </div>
+                  <% } %>
+                    <div class="btn-group" role="group">
+                      <form method="POST" action="../../urls/<%= id %>/delete">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"><span
+                            class="material-symbols-outlined" style="vertical-align: bottom">delete</span>
+                          Delete</button>
+                      </form>
+                    </div>
+              <script>
+                function copyText(input) {
+                  navigator.clipboard.writeText
+                    (input);
+                }
+              </script>
+            </div>
           </div>
-          <% if (!edit) { %><div class="btn-group" role="group">
-            <a class="btn btn-outline-success btn-sm" data-toggle="collapse" href="#collapseEdit" role="button" 
-            aria-expanded="false" aria-controls="collapseEdit"><span
-                class="material-symbols-outlined" style="vertical-align: bottom">edit_square</span> Edit</a>
-          </div><% } %>
-          <div class="btn-group" role="group">
-            <form method="POST" action="../../urls/<%= id %>/delete">
-              <button type="submit" class="btn btn-outline-danger btn-sm"><span class="material-symbols-outlined"
-                  style="vertical-align: bottom">delete</span> Delete</button>
-            </form>
-          </div>
-          </p>
-          <script>
-            function copyText(input) {
-              navigator.clipboard.writeText
-                (input);
-            }
-          </script>
         </div>
+        <div class="row justify-content-center">
+          <div class="col-md-auto">
+            <ul class="list-group list-group-flush" style="width: 17rem;">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <small>Created:</small>
+                <span class="badge badge-primary">
+                  <%= urlObj.created.toString().substring(0,16) %> | <%= urlObj.created.toString().substring(16,21) %>
+                </span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <small>Updated:</small>
+                <span class="badge badge-primary">
+                  <%= urlObj.updated.toString().substring(0,16) %> | <%= urlObj.updated.toString().substring(16,21) %>
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-auto">
+            <ul class="list-group list-group-flush" style="width: 10rem;">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <small>Total hits:</small>
+                <span class="badge badge-success">
+                  <%= urlObj.hits %>
+                </span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <small>Unique hits:</small>
+                <span class="badge badge-success">
+                  <%= urlObj.uniqueHits.length %>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        &nbsp;
         <div class="collapse" id="collapseEdit">
           <div class="card-footer text-muted">
             <h5 class="card-title">Edit</h5>
@@ -64,7 +107,7 @@
               <div class="form-group mb-2">
                 <div class="input-group mb-3">
                   <label for="longURL">Enter new destination:&emsp;</label>
-                  <input type="text" class="form-control" name="longURL" value="<%= longURL %>"
+                  <input type="text" class="form-control" name="longURL" value="<%= urlObj.longUrl %>"
                     pattern="https://.*|http://.*" style="width: 250px" required>
                   <div class="input-group-append">
                     <button class="btn btn-outline-success" type="submit"><span class="material-symbols-outlined"
@@ -75,6 +118,8 @@
             </form>
           </div>
         </div>
+      </div>
+      </div>
       </div>
     </main>
 
