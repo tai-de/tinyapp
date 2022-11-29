@@ -37,20 +37,15 @@
       <% if (typeof user !== 'undefined') {%><span class="nav-item nav-link active">Welcome, <b><%= user.email %></b>!&emsp;</span>
       <form class="form-inline" action="/logout" method="POST">
         <div class="input-group">
-          <button type="submit" class="btn btn-outline-secondary"><span class="material-symbols-outlined" style="vertical-align: bottom">logout</span> Logout</button>        </div>
+          <button type="submit" class="btn btn-outline-secondary"><span class="material-symbols-outlined" style="vertical-align: bottom">logout</span> Logout</button>
+        </div>
       </form>
       <% } else { %>
-      <form class="form-inline" action="/login" method="POST">
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon1">@</span>
-          </div>
-          <input type="text" name="username" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1" style="width: 150px;">
-          <div class="input-group-append">
-            <button class="btn btn-success" type="submit">Login</button>
-          </div>
+        <div class="navbar-nav">
+          <a href="/register" class="btn btn-primary" style="margin-right:10px;"><span class="material-symbols-outlined" style="vertical-align: bottom">app_registration</span> Register</a>
+          <a href="/login" class="btn btn-success"><span class="material-symbols-outlined" style="vertical-align: bottom">login</span> Login</a>
         </div>
-      </form><% } %>
+      <% } %>
     </div>
   </nav>
 </header>
