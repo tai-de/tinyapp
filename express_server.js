@@ -38,12 +38,13 @@ const generateRandomString = function(length) {
   return newKey;
 };
 
-// user lookup, given a value to search for and an optional key (default is email)
-// will return true if user is found
-const userLookup = function(value, key = 'email') {
+// user lookup
+// given a value to search for and an optional key (default is email)
+// will return the value of the third parameter if user is found (or the same value if not passed)
+const userLookup = function(value, key = 'email', target = 'email') {
   for (const user in users) {
     if (users[user][key] === value) {
-      return true;
+      return users[user][target];
     }
   }
   return false;
@@ -133,6 +134,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // register
 app.post("/register", (req, res) => {
+  const date = [new Date()];
   const userId = generateRandomString(3);
   const userEmail = req.body["email"];
   const userUsername = req.body["username"];
@@ -146,22 +148,38 @@ app.post("/register", (req, res) => {
   }
   users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
   console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}, password: ${userPassword}`);
+  users[userId]._logins = [date]
   res.cookie('user_id', userId);
   res.redirect(`/urls`);
 });
 
 // login
 app.post("/login", (req, res) => {
-  console.log('new username:', req.body["username"]);
-  res.cookie('username', req.body["username"]);
+  const date = [new Date()];
+  const loginEmail = req.body["email"];
+  const loginPass = req.body["password"];
+  const userId = userLookup(loginEmail, 'email', 'id');
+  const userPass = userLookup(loginEmail, 'email', 'password');
+  console.log('new login attempt from:', userId, loginEmail);
+  if (userId === undefined) {
+    return res.status(403).send('Error 403 - Invalid entry: Email address does not exist!');
+  }
+  if (loginPass !== userPass) {
+    return res.status(403).send('Error 400 - Invalid entry: Password is incorrect!');
+  }
+  console.log('successful login from:', userId, loginEmail);
+  users[userId]._logins ? users[userId]._logins.push(date) : users[userId]._logins = [date];
+  console.log('login history:', users[userId]._logins);
+  res.cookie('user_id', userId);
   res.redirect(`/urls`);
 });
 
 // logout
 app.post("/logout", (req, res) => {
-  console.log('username deleted:', req.cookies['username']);
-  res.clearCookie('username');
-  res.redirect(`/urls`);
+  const userId = req.cookies['user_id'];
+  console.log('user logged out:', users[userId].email);
+  res.clearCookie('user_id');
+  res.redirect(`/login`);
 });
 
 app.listen(PORT, () => {
