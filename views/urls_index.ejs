@@ -31,47 +31,68 @@
           <table class="table table-striped table-hover">
             <thead class="thead-light">
               <tr>
-                <th scope="col" style="width: 175px;">Short URL ID</th>
-                <th scope="col">Long URL</th>
-                <th scope="col">Stats</th>
-                <th scope="col" style="min-width: 275px;">Options</th>
+                <th scope="col" class="">Short URL ID</th>
+                <th scope="col" class="">Long URL</th>
+                <th scope="col" class="">Stats</th>
+                <th scope="col" class="d-none d-lg-block">Options</th>
               </tr>
             </thead>
             <tbody>
               <% for (let id in urls) { %>
                 <tr>
-                  <th scope="row">
+                  <th scope="row" class="">
                     <a href="/urls/<%= id %>">
                       <%= id %>
                     </a>
-                    <% if(typeof newUrl !=="undefined" && id===newUrl) { %>
-                      &nbsp;<span class="badge badge-success">new</span>
+                    <% if(Date().toString().substring(0,10)===urls[id].created.toString().substring(0,10) &&
+                      Date().toString().substring(0,10)!==urls[id].updated.toString().substring(0,10)) { %>
+                      &nbsp;<span class="badge badge-success" data-toggle="tooltip" data-placement="top"
+                        title="created today">new</span>
                       <% } %>
-                        <% if(typeof updatedUrl !=="undefined" && id===updatedUrl) { %>
-                          &nbsp;<span class="badge badge-success">updated</span>
+                        <% if(Date().toString().substring(0,10)===urls[id].updated.toString().substring(0,10) &&
+                          Date().toString().substring(0,10) !==urls[id].created.toString().substring(0,10)) { %>
+                          &nbsp;<span class="badge badge-success" data-toggle="tooltip" data-placement="top"
+                            title="updated today">updated</span>
                           <% } %>
+                            <% if(Date().toString().substring(0,10)===urls[id].updated.toString().substring(0,10) &&
+                              Date().toString().substring(0,10)===urls[id].created.toString().substring(0,10)) { %>
+                              &nbsp;<span class="badge badge-success" data-toggle="tooltip" data-placement="top"
+                                title="created and updated today">new/updated</span>
+                              <% } %>
                   </th>
-                  <td>
+                  <td class="">
                     <%= urls[id].longUrl %>
                   </td>
-                  <td>
-                    <button type="button" class="badge badge-primary" disabled>
-                      <small>Created</small> <span class="badge badge-light">
-                        <%= urls[id].created.toString().substring(0,10) %>
-                      </span>
-                    </button>
-                    <button type="button" class="badge badge-success" disabled>
-                      <small>Total hits</small> <span class="badge badge-light">
-                        <%= urls[id].hits %>
-                      </span>
-                    </button>
-                    <button type="button" class="badge badge-success" disabled>
-                      <small>Unique hits</small> <span class="badge badge-light">
-                        <%= urls[id].uniqueHits.length %>
-                      </span>
-                    </button>
+                  <td class="">
+                    <div>
+
+                      <% if (urls[id].created) { %>
+                        <button type="button" class="badge badge-primary d-none d-md-inline" disabled>
+                          <small>Created</small> <span class="badge badge-light">
+                            <%= urls[id].created.toString().substring(0,10) %>
+                          </span>
+                        </button>
+                        <% } else { %>
+                          <button type="button" class="badge badge-primary d-none d-md-inline" disabled>
+                            <small>Created</small> <span class="badge badge-light">
+                              Unknown
+                            </span>
+                          </button>
+                          <% } %>
+                          
+                            <button type="button" class="badge badge-success d-inline" disabled>
+                              <small>Total hits</small> <span class="badge badge-light">
+                                <%= urls[id].hits %>
+                              </span>
+                            </button>
+                            <button type="button" class="badge badge-success d-inline" disabled>
+                              <small>Unique hits</small> <span class="badge badge-light">
+                                <%= urls[id].uniqueHits.length %>
+                              </span>
+                            </button>
+                    </div>
                   </td>
-                  <td>
+                  <td class="d-none d-lg-block">
                     <div class="btn-group" role="group">
                       <button type="button" class="btn btn-outline-primary btn-sm"
                         onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
@@ -113,6 +134,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
       integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
       crossorigin="anonymous"></script>
+    <script>$(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+      })</script>
 
 </body>
 

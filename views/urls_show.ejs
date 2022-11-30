@@ -32,36 +32,36 @@
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-md-auto">
-              Short URL ID: <a href="/u/<%= id %>">
+              Short URL ID: <a href="/u/<%= id %>" target="_blank">
                 <%= id %>
               </a>
             </div>
             <div class="col">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-primary btn-sm"
+                  onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
+                    style="vertical-align: bottom">link</span> Copy link</button>
+              </div>
+              <% if (!edit) { %>
                 <div class="btn-group" role="group">
-                  <button type="button" class="btn btn-outline-primary btn-sm"
-                    onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><span class="material-symbols-outlined"
-                      style="vertical-align: bottom">link</span> Copy link</button>
+                  <a class="btn btn-outline-success btn-sm" data-toggle="collapse" href="#collapseEdit" role="button"
+                    aria-expanded="false" aria-controls="collapseEdit"><span class="material-symbols-outlined"
+                      style="vertical-align: bottom">edit_square</span> Edit</a>
                 </div>
-                <% if (!edit) { %>
+                <% } %>
                   <div class="btn-group" role="group">
-                    <a class="btn btn-outline-success btn-sm" data-toggle="collapse" href="#collapseEdit" role="button"
-                      aria-expanded="false" aria-controls="collapseEdit"><span class="material-symbols-outlined"
-                        style="vertical-align: bottom">edit_square</span> Edit</a>
+                    <form method="POST" action="../../urls/<%= id %>/delete">
+                      <button type="submit" class="btn btn-outline-danger btn-sm"><span
+                          class="material-symbols-outlined" style="vertical-align: bottom">delete</span>
+                        Delete</button>
+                    </form>
                   </div>
-                  <% } %>
-                    <div class="btn-group" role="group">
-                      <form method="POST" action="../../urls/<%= id %>/delete">
-                        <button type="submit" class="btn btn-outline-danger btn-sm"><span
-                            class="material-symbols-outlined" style="vertical-align: bottom">delete</span>
-                          Delete</button>
-                      </form>
-                    </div>
-              <script>
-                function copyText(input) {
-                  navigator.clipboard.writeText
-                    (input);
-                }
-              </script>
+                  <script>
+                    function copyText(input) {
+                      navigator.clipboard.writeText
+                        (input);
+                    }
+                  </script>
             </div>
           </div>
         </div>
@@ -70,15 +70,23 @@
             <ul class="list-group list-group-flush" style="width: 17rem;">
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <small>Created:</small>
-                <span class="badge badge-primary">
-                  <%= urlObj.created.toString().substring(0,16) %> | <%= urlObj.created.toString().substring(16,21) %>
-                </span>
+                <% if (urlObj.created) { %>
+                  <span class="badge badge-primary">
+                    <%= urlObj.created.toString().substring(0,16) %> | <%= urlObj.created.toString().substring(16,21) %>
+                  </span>
+                  <% } else { %>
+                    <span class="badge badge-info">No data</span>
+                    <% } %>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <small>Updated:</small>
-                <span class="badge badge-primary">
-                  <%= urlObj.updated.toString().substring(0,16) %> | <%= urlObj.updated.toString().substring(16,21) %>
-                </span>
+                <% if (urlObj.updated) { %>
+                  <span class="badge badge-primary">
+                    <%= urlObj.updated.toString().substring(0,16) %> | <%= urlObj.updated.toString().substring(16,21) %>
+                  </span>
+                  <% } else { %>
+                    <span class="badge badge-info">No data</span>
+                    <% } %>
               </li>
             </ul>
           </div>
@@ -135,7 +143,6 @@
       crossorigin="anonymous"></script>
     <script>if (<%= edit %>) {
         $('#collapseEdit').addClass('show');
-        console.log('showed edit div');
       }</script>
 
 </body>
