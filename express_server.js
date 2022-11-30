@@ -1,23 +1,28 @@
 const cookieParser = require('cookie-parser');
-
 const express = require("express");
+const morgan = require('morgan');
+
 const app = express();
 const PORT = 8080; // default port 8080
+
 
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(morgan('combined'));
+
+const appName = "TinyApp";
 
 const users = {
-  userRandomID: {
-    id: "userRandomID",
+  "x12b": {
+    id: "x12b",
     email: "user@example.com",
     username: "user1",
     password: "purple-monkey-dinosaur",
   },
-  user2RandomID: {
-    id: "user2RandomID",
+  "81v3": {
+    id: "81v3",
     email: "user2@example.com",
     username: "user2",
     password: "dishwasher-funk",
@@ -27,7 +32,8 @@ const users = {
 const urlDatabase = {
   "b2xVn2": {
     longUrl: "http://www.lighthouselabs.ca",
-    userId: "userRandomID",
+    private: true,
+    userId: "x12b",
     created: new Date(Date.parse('2022-11-27T21:40:51.059Z')),
     updated: new Date(Date.parse('2022-11-29T08:10:51.059Z')),
     hits: 0,
@@ -35,7 +41,8 @@ const urlDatabase = {
   },
   "9sm5xK": {
     longUrl: "http://www.google.com",
-    userId: "userRandomID",
+    private: false,
+    userId: "x12b",
     created: new Date(Date.parse('2022-11-25T22:44:51.059Z')),
     updated: new Date(Date.parse('2022-11-28T20:01:51.059Z')),
     hits: 0,
@@ -43,7 +50,8 @@ const urlDatabase = {
   },
   "8va2xM": {
     longUrl: "http://www.youtube.com",
-    userId: "userRandomID",
+    private: false,
+    userId: "x12b",
     created: '',
     updated: '',
     hits: 0,
@@ -51,7 +59,8 @@ const urlDatabase = {
   },
   "b6UTxQ": {
     longUrl: "https://www.tsn.ca",
-    userId: "user2RandomID",
+    private: false,
+    userId: "81v3",
     created: new Date(Date.parse('2022-11-26T23:56:51.059Z')),
     updated: new Date(Date.parse('2022-11-27T13:24:51.059Z')),
     hits: 0,
@@ -93,6 +102,22 @@ const urlsForUser = function(userId) {
   return filteredUrlDb;
 };
 
+// returns all public urls + the user's private ones
+const getAllUrls = function(userId) {
+  const filteredUrlDb = {};
+  for (const key in urlDatabase) {
+    const urlObj = urlDatabase[key];
+    const urlOwner = urlDatabase[key].userId;
+    if (urlOwner === userId) {
+      filteredUrlDb[key] = urlObj;
+      continue;
+    } else if (!urlObj.private) {
+      filteredUrlDb[key] = urlObj;
+    }
+  }
+  return filteredUrlDb;
+};
+
 //
 // ROUTES FOR GET REQ
 //
@@ -101,7 +126,7 @@ app.get("/", (req, res) => {
   const userId = req.cookies['user_id'];
 
   if (userId) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   res.redirect('/login');
@@ -109,33 +134,40 @@ app.get("/", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.cookies['user_id'];
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.cookies['user_id']], appName };
 
   if (userId) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   res.render("urls_register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.cookies['user_id']] };
+  const templateVars = { user: users[req.cookies['user_id']], appName };
   const userId = req.cookies['user_id'];
 
   if (userId) {
-    res.redirect('/urls');
+    return res.redirect('/urls');
   }
 
   res.render("urls_login", templateVars);
 });
 
+app.get("/urls/all", (req, res) => {
+  const userId = req.cookies['user_id'];
+  const templateVars = { urls: getAllUrls(userId), user: users[userId], appName };
+
+  res.render("urls_all", templateVars);
+});
+
 app.get("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
-  const templateVars = { urls: urlsForUser(userId), user: users[userId] };
+  const templateVars = { urls: urlsForUser(userId), user: users[userId], appName };
 
   if (!userId) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   res.render("urls_index", templateVars);
@@ -143,11 +175,11 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
-  const templateVars = { user: users[userId] };
+  const templateVars = { user: users[userId], appName };
 
   if (!userId) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   res.render("urls_new", templateVars);
@@ -160,27 +192,28 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const editStatus = req.path.indexOf("/edit") > -1;
 
   if (!userId) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   if (urlDatabase[shortUrl] && userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   if (!urlDatabase[shortUrl] && userId) {
     res.redirect('/urls/new');
-  };
+  }
   if (!urlDatabase[shortUrl] && !userId) {
     res.redirect('/login');
-  };
+  }
 
   const templateVars = {
     id: shortUrl,
     urlObj: userUrls[shortUrl],
     user: users[req.cookies['user_id']],
-    edit: editStatus
+    edit: editStatus,
+    appName
   };
   console.log(templateVars);
   res.render("urls_show", templateVars);
@@ -192,9 +225,9 @@ app.get("/u/:id", (req, res) => {
   const userId = req.cookies['user_id'];
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.' };
-    return res.render("urls_error", errorVars);
-  };
+    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    return res.status(404).render("urls_error", errorVars);
+  }
 
   const longUrl = urlDatabase[shortUrl].longUrl;
 
@@ -209,8 +242,8 @@ app.get("/u/:id", (req, res) => {
 // 404/catch-all
 app.get("*", (req, res) => {
   // res.redirect('/urls');
-  const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Page not found.' };
-  return res.render("urls_error", errorVars);
+  const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Page not found.', appName };
+  return res.status(404).render("urls_error", errorVars);
 });
 
 //
@@ -228,8 +261,10 @@ app.post("/urls", (req, res) => {
 
   const shortUrl = generateRandomString(6);
   const longUrl = req.body["longURL"];
+  const private = req.body["private"];
   urlDatabase[shortUrl] = {};
   urlDatabase[shortUrl].longUrl = longUrl;
+  urlDatabase[shortUrl].private = private;
   urlDatabase[shortUrl].userId = userId;
   urlDatabase[shortUrl].created = date;
   urlDatabase[shortUrl].updated = '';
@@ -246,18 +281,18 @@ app.post("/urls/:id", (req, res) => {
   const longUrl = req.body["longURL"];
 
   if (!userId) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.' };
-    return res.render("urls_error", errorVars);
+    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    return res.status(404).render("urls_error", errorVars);
   }
 
   if (userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
-    return res.render("urls_error", errorVars);
+    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   urlDatabase[shortUrl].longUrl = longUrl;
@@ -271,18 +306,18 @@ app.post("/urls/:id/delete", (req, res) => {
   const shortUrl = req.params.id;
 
   if (!userId) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.' };
-    return res.render("urls_error", errorVars);
+    const errorVars = { user: users[req.cookies['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    return res.status(404).render("urls_error", errorVars);
   }
 
   if (userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.' };
-    return res.render("urls_error", errorVars);
+    const errorVars = { user: users[req.cookies['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
+    return res.status(401).render("urls_error", errorVars);
   }
 
   delete urlDatabase[shortUrl];
@@ -292,20 +327,24 @@ app.post("/urls/:id/delete", (req, res) => {
 // register
 app.post("/register", (req, res) => {
   const date = [new Date()];
-  const userId = generateRandomString(3);
-  const userEmail = req.body["email"];
+  const userId = generateRandomString(4);
+  const userEmail = req.body["email"].toLowerCase();
   const userUsername = req.body["username"];
   const userPassword = req.body["password"];
 
   console.log('new registration attempt from:', userEmail);
 
   if (userEmail === '' || userUsername === '' || userPassword === '') {
-    const errorVars = { code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: '/register', display: 'Click here to try again.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.', appName } };
+    return res.status(400).render("urls_error", errorVars);
   }
   if (userLookup(userEmail)) {
-    const errorVars = { code: 400, message: 'Invalid entry: Email address in use!', cta: { url: '/register', display: 'Click here to try again.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 400, message: 'Invalid entry: Email address in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.', appName } };
+    return res.status(400).render("urls_error", errorVars);
+  }
+  if (userLookup(userUsername, 'username')) {
+    const errorVars = { code: 400, message: 'Invalid entry: Username in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    return res.status(400).render("urls_error", errorVars);
   }
 
   users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
@@ -319,7 +358,7 @@ app.post("/register", (req, res) => {
 // login
 app.post("/login", (req, res) => {
   const date = [new Date()];
-  const loginEmail = req.body["email"];
+  const loginEmail = req.body["email"].toLowerCase();
   const loginPass = req.body["password"];
   const userEmail = userLookup(loginEmail, 'email');
   const userId = userLookup(loginEmail, 'email', 'id');
@@ -328,12 +367,12 @@ app.post("/login", (req, res) => {
   console.log('new login attempt from:', userId, loginEmail);
 
   if (!userEmail) {
-    const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
+    return res.status(403).render("urls_error", errorVars);
   }
   if (loginPass !== userPass) {
-    const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' } };
-    return res.render("urls_error", errorVars);
+    const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
+    return res.status(403).render("urls_error", errorVars);
   }
 
   console.log('successful login from:', userId, loginEmail);

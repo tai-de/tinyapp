@@ -2,19 +2,10 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
-
-  <!-- Google Icons -->
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,300,0,0" />
-
-  <title>Register - TinyApp Example</title>
+  <%- include('partials/_head.ejs') %>
+    <title>
+      <%= appName %> - Register
+    </title>
 </head>
 
 <body>
@@ -23,52 +14,79 @@
 
     <main style="margin: 1em;">
 
-      <div class="card" style="width: 36rem;">
+      <div class="card" style="max-width: 36rem;">
         <div class="card-header">
           <h4>Register</h4>
         </div>
         <div class="card-body form-group">
           <form action="/register" method="POST">
 
-            <div class="form-group">
-              <label for="email">Email address</label> 
+            <div class="form-group input-group mb-3">
+              <div class="input-group-prepend"
+                style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                <label class="input-group-text" for="email" style="max-width: 8rem;" data-toggle="tooltip"
+                  data-placement="top" title="Email address"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                    fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd"
+                      d="M1.75 2A1.75 1.75 0 000 3.75v.736a.75.75 0 000 .027v7.737C0 13.216.784 14 1.75 14h12.5A1.75 1.75 0 0016 12.25v-8.5A1.75 1.75 0 0014.25 2H1.75zM14.5 4.07v-.32a.25.25 0 00-.25-.25H1.75a.25.25 0 00-.25.25v.32L8 7.88l6.5-3.81zm-13 1.74v6.441c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25V5.809L8.38 9.397a.75.75 0 01-.76 0L1.5 5.809z">
+                    </path>
+                  </svg><span class="d-none d-md-inline-block text-left" style="min-width: 5.25rem;">&ensp;Email</label>
+              </div>
               <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp"
-                placeholder="Enter email">
+                placeholder="Enter your email address">
             </div>
 
             <div class="form-row">
               <div class="col">
-                <label for="username">Username</label>
                 <div class="form-group input-group mb-3">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">@</span>
+                  <div class="input-group-prepend"
+                    style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                    <label class="input-group-text" class="input-group-text" for="username" style="max-width: 8rem;"
+                      data-toggle="tooltip" data-placement="top" title="Username"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16"
+                        height="16">
+                        <path fill-rule="evenodd"
+                          d="M4.75 2.37a6.5 6.5 0 006.5 11.26.75.75 0 01.75 1.298 8 8 0 113.994-7.273.754.754 0 01.006.095v1.5a2.75 2.75 0 01-5.072 1.475A4 4 0 1112 8v1.25a1.25 1.25 0 002.5 0V7.867a6.5 6.5 0 00-9.75-5.496V2.37zM10.5 8a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z">
+                        </path>
+                      </svg><span class="d-none d-md-inline-block text-left"
+                        style="min-width: 5.25rem;">&ensp;Username</label>
                   </div>
-                  <input type="text" class="form-control" name="username" id="username" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="username" id="username"
+                    placeholder="Choose a display name" aria-label="Username" aria-describedby="basic-addon1">
                 </div>
               </div>
+            </div>
+
+
+            <div class="form-row">
               <div class="col">
-                <label for="password">Password</label>
-                <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                <div class="form-group input-group mb-3">
+                  <div class="input-group-prepend"
+                    style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                    <label class="input-group-text" for="password" style="max-width: 8rem;" data-toggle="tooltip"
+                      data-placement="top" title="Password"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                        fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                          d="M6.5 5.5a4 4 0 112.731 3.795.75.75 0 00-.768.18L7.44 10.5H6.25a.75.75 0 00-.75.75v1.19l-.06.06H4.25a.75.75 0 00-.75.75v1.19l-.06.06H1.75a.25.25 0 01-.25-.25v-1.69l5.024-5.023a.75.75 0 00.181-.768A3.995 3.995 0 016.5 5.5zm4-5.5a5.5 5.5 0 00-5.348 6.788L.22 11.72a.75.75 0 00-.22.53v2C0 15.216.784 16 1.75 16h2a.75.75 0 00.53-.22l.5-.5a.75.75 0 00.22-.53V14h.75a.75.75 0 00.53-.22l.5-.5a.75.75 0 00.22-.53V12h.75a.75.75 0 00.53-.22l.932-.932A5.5 5.5 0 1010.5 0zm.5 6a1 1 0 100-2 1 1 0 000 2z">
+                        </path>
+                      </svg><span class="d-none d-md-inline-block text-left"
+                        style="min-width: 5.25rem;">&ensp;Password</label>
+                  </div>
+                  <input type="password" name="password" class="form-control" id="password"
+                    placeholder="Select a password">
+                </div>
               </div>
             </div>
 
             <button type="submit" class="btn btn-primary">Submit</button>
+            <input type="reset" class="btn btn-success" value="Reset">
 
           </form>
         </div>
       </div>
     </main>
 
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-      crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-      crossorigin="anonymous"></script>
+    <%- include('partials/_footer.ejs') %>
 
 </body>
 
