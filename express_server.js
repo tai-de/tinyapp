@@ -1,6 +1,7 @@
 const cookieParser = require('cookie-parser');
 const express = require("express");
 const morgan = require('morgan');
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -19,13 +20,13 @@ const users = {
     id: "x12b",
     email: "user@example.com",
     username: "Example #1",
-    password: "purple-monkey-dinosaur",
+    password: "$2a$10$EYcB7T6tt.io9IgF8gCQhOzlsNUEQdkWycSuiQ3evCrAPKAlVU5Ne",
   },
   "81v3": {
     id: "81v3",
     email: "user2@example.com",
     username: "Example #2",
-    password: "dishwasher-funk",
+    password: "$2a$10$Ot2RG54I9TxlHrt0eAcZeOEUllm.v2hEnBRPbFsCzQf0OBhXWa4Oa",
   },
 };
 
@@ -337,6 +338,8 @@ app.post("/register", (req, res) => {
   const userEmail = req.body["email"].toLowerCase();
   const userUsername = req.body["username"];
   const userPassword = req.body["password"];
+  const hashedPassword = bcrypt.hashSync(userPassword, 10);
+
 
   console.log('new registration attempt from:', userEmail);
 
@@ -353,8 +356,8 @@ app.post("/register", (req, res) => {
     return res.status(400).render("urls_error", errorVars);
   }
 
-  users[userId] = { id: userId, email: userEmail, username: userUsername, password: userPassword };
-  console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}, password: ${userPassword}`);
+  users[userId] = { id: userId, email: userEmail, username: userUsername, password: hashedPassword };
+  console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}, password: ${userPassword}, hashed: ${hashedPassword}`);
   users[userId]._logins = [date];
 
   res.cookie('user_id', userId);
@@ -369,6 +372,7 @@ app.post("/login", (req, res) => {
   const userEmail = userLookup(loginEmail, 'email');
   const userId = userLookup(loginEmail, 'email', 'id');
   const userPass = userLookup(loginEmail, 'email', 'password');
+  const passCheck = bcrypt.compareSync(loginPass, userPass);
 
   console.log('new login attempt from:', userId, loginEmail);
 
@@ -376,7 +380,7 @@ app.post("/login", (req, res) => {
     const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("urls_error", errorVars);
   }
-  if (loginPass !== userPass) {
+  if (!passCheck) {
     const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("urls_error", errorVars);
   }
@@ -392,7 +396,7 @@ app.post("/login", (req, res) => {
 // logout
 app.post("/logout", (req, res) => {
   const userId = req.cookies['user_id'];
-  console.log('user logged out:', users[userId].email);
+  console.log('user logged out:', userId);
   res.clearCookie('user_id');
   res.redirect(`/login`);
 });
