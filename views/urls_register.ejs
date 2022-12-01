@@ -14,14 +14,14 @@
 
     <main style="margin: 1em;">
 
-      <div class="card" style="max-width: 36rem;">
+      <div class="card" style="margin: 0 auto; max-width: 36rem;">
         <div class="card-header">
           <h4>Register</h4>
         </div>
         <div class="card-body form-group">
           <form action="/register" method="POST">
 
-            <div class="form-group input-group mb-3">
+            <div class="input-group mb-3">
               <div class="input-group-prepend"
                 style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
                 <label class="input-group-text" for="email" style="max-width: 8rem;" data-toggle="tooltip"
@@ -77,16 +77,30 @@
                 </div>
               </div>
             </div>
-
-            <button type="submit" class="btn btn-primary">Submit</button>
-            <input type="reset" class="btn btn-success" value="Reset">
-
+            <div class="form-row  justify-content-between align-items-center" style="width: 100%">
+              <div class="col justify-content-between col-md-auto">
+                <button id="submitButton" type="submit" class="btn btn-primary" onclick="showWaiting()">Submit</button>
+                <input type="reset" class="btn btn-success" value="Reset">
+              </div>
+              <div class="col ">
+                <div class="text-center small text-muted">
+                  <span class="d-none d-sm-inline-block">Already have an account?</span>
+                  <span class="d-sm-none">Have an account?</span>
+                  <a class="text-muted" href="/login">Login here</a>
+                </div>
+              </div>
           </form>
         </div>
       </div>
     </main>
 
     <%- include('partials/_footer.ejs') %>
+      <script>
+        function showWaiting() {
+          document.getElementById('submitButton').setAttribute('class', 'btn btn-secondary');
+          document.getElementById('submitButton').innerHTML = "Waiting...";
+        }
+      </script>
 
 </body>
 

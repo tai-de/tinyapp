@@ -13,13 +13,12 @@
   <%- include('partials/_header.ejs') %>
 
     <main style="margin: 1em;">
-      <div class="card" style="max-width: 36rem;">
+      <div class="card" style="margin: 0 auto; max-width: 36rem;">
         <div class="card-header">
           <h4>Create TinyURL</h4>
         </div>
-        <div class="card-body">
+        <div class="card-body form-group">
           <form class="justify-content-center" action="/urls" method="POST">
-            <div class="row">
               <div class="input-group mb-3">
                 <div class="input-group-prepend"
                   style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
@@ -29,19 +28,17 @@
                 <input type="text" class="form-control" id="longURL" aria-describedby="basic-addon3" name="longURL"
                   placeholder="http://" pattern="https://.*|http://.*" style="width: 300px;" required>
                 <div class="input-group-append">
-                  <button class="btn btn-outline-primary" type="submit" style="min-width: 3rem; max-width: 8rem;"><svg
+                  <button id="submitButton" class="btn btn-outline-primary" type="submit" style="min-width: 3rem; max-width: 8rem;" onclick="showWaiting()"><svg
                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"
                       style="margin-bottom:2px;">
                       <path fill-rule="evenodd"
                         d="M3.75 1.5a.25.25 0 00-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 00.25-.25V4.664a.25.25 0 00-.073-.177l-2.914-2.914a.25.25 0 00-.177-.073H3.75zM2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0113.25 16h-9.5A1.75 1.75 0 012 14.25V1.75zm6.23 3.508a.75.75 0 01.755.745l.01 1.497h1.497a.75.75 0 010 1.5H9v1.507a.75.75 0 01-1.5 0V9.005l-1.502.01a.75.75 0 11-.01-1.5l1.507-.01-.01-1.492a.75.75 0 01.745-.755z">
                       </path>
-                    </svg><span class="d-none d-sm-inline-block text-left"
+                    </svg><span id="buttonText" class="d-none d-sm-inline-block text-left"
                       style="min-width: 5.25rem;">&ensp;Create</span></button>
                 </div>
               </div>
-            </div>
 
-            <div class="row">
               <div class="input-group mb-3">
                 <div class="input-group-prepend">
 
@@ -60,8 +57,6 @@
                   <option value="true">Yes</option>
                 </select>
               </div>
-            </div>
-
 
           </form>
         </div>
@@ -70,6 +65,15 @@
     </main>
 
     <%- include('partials/_footer.ejs') %>
+      <script>
+        function showWaiting() {
+          const urlInput = document.getElementById('longURL').value;
+          if (urlInput !== "" && (urlInput.substring(0,7) === 'http://' || urlInput.substring(0,8) === 'https://')) {
+            document.getElementById('submitButton').setAttribute('class', 'btn btn-secondary');
+            document.getElementById('buttonText').innerHTML = "&ensp;Waiting...";
+          }
+        }
+      </script>
 
 </body>
 

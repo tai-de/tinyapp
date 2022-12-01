@@ -17,10 +17,10 @@
         <div class="card-header">
           <h4>All URLs</h4>
         </div>
-        <div class="card-header text-muted small">
-          <i>All public URLs <%= locals.user ? '(and any private URLs owned by you) ' : '' %>are listed below.</i>
-        </div>
         <div class="card-body form-group table-responsive">
+          <div class="text-muted small" style="margin-bottom: 10px;">
+            <i>All public URLs <%= locals.user ? '(and any private URLs owned by you) ' : '' %>are listed below.</i>
+          </div>
 
           <table class="table table-striped table-hover">
             <thead class="thead-light">
@@ -39,7 +39,7 @@
                       <a href="/u/<%= id %>" target="_blank">
                         <%= id %>
                       </a>
-                      <% if (urls[id].private ==='true' ) { %>
+                      <% if (urls[id].private==='true' ) { %>
                         <span class="badge badge-pill badge-danger d-none d-sm-inline" data-toggle="tooltip"
                           data-placement="top" title="created by <%= urls[id].username %>">
                           <small>Private</small>
@@ -111,8 +111,8 @@
                   <td class="" style="margin-top: 0px; padding: 10px 0px 0px;">
                     <div class="btn-group d-inline-block" role="group">
                       <button type="button" class="btn btn-outline-primary btn-sm"
-                        onclick="copyText(`http://localhost:8080/u/<%= id %>`)"><svg xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16" fill="currentColor" width="16" height="16" style="margin-bottom:2px;">
+                        onclick="copyText(`/u/<%= id %>`)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                          fill="currentColor" width="16" height="16" style="margin-bottom:2px;">
                           <path fill-rule="evenodd"
                             d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z">
                           </path>
@@ -132,7 +132,7 @@
                           </svg>&ensp;Edit</a>
                       </div>
                       <div class="btn-group d-none d-lg-inline-block" role="group">
-                        <form method="POST" action="./urls/<%= id %>/delete">
+                        <form method="POST" action="/urls/<%= id %>?_method=DELETE">
                           <button type="submit" class="btn btn-outline-danger btn-sm"><svg
                               xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16"
                               height="16" style="margin-bottom:2px;">
@@ -145,8 +145,18 @@
                       <% } %>
                         <script>
                           function copyText(input) {
+                            let url = window.location.href;
+                            if (url.substring(0, 5) === 'https') {
+                              url = url.slice(8);
+                              url = 'https://' + url.substring(0, url.indexOf('/'));
+                            } else if (url.substring(0, 4) === 'http') {
+                              url = url.slice(7);
+                              url = 'http://' + url.substring(0, url.indexOf('/'));
+                            } else {
+                              url = url.substring(0, url.indexOf('/'));
+                            }
                             navigator.clipboard.writeText
-                              (input);
+                              (url + input);
                           }
                         </script>
                   </td>
