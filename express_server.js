@@ -50,7 +50,7 @@ const urlDatabase = {
     longUrl: "http://www.lighthouselabs.ca",
     private: 'true',
     userId: "x12b",
-    username: "user1",
+    username: "Example #1",
     created: new Date(Date.parse('2022-11-27T21:40:51.059Z')),
     updated: new Date(Date.parse('2022-11-29T08:10:51.059Z')),
     hits: 0,
@@ -60,7 +60,7 @@ const urlDatabase = {
     longUrl: "http://www.google.com",
     private: 'false',
     userId: "x12b",
-    username: "user1",
+    username: "Example #1",
     created: new Date(Date.parse('2022-11-25T22:44:51.059Z')),
     updated: new Date(Date.parse('2022-11-28T20:01:51.059Z')),
     hits: 0,
@@ -70,7 +70,7 @@ const urlDatabase = {
     longUrl: "http://www.youtube.com",
     private: 'false',
     userId: "x12b",
-    username: "user1",
+    username: "Example #1",
     created: '',
     updated: '',
     hits: 0,
@@ -80,7 +80,7 @@ const urlDatabase = {
     longUrl: "https://www.tsn.ca",
     private: 'false',
     userId: "81v3",
-    username: "user2",
+    username: "Example #2",
     created: new Date(Date.parse('2022-11-26T23:56:51.059Z')),
     updated: new Date(Date.parse('2022-11-27T13:24:51.059Z')),
     hits: 0,
@@ -282,12 +282,15 @@ app.post("/urls", (req, res) => {
   }
 
   const shortUrl = generateRandomString(6, urlDatabase);
+  const username = userLookup(users, userId, 'id', 'username');
   const longUrl = req.body["longURL"];
   const private = req.body["private"];
+
   urlDatabase[shortUrl] = {};
   urlDatabase[shortUrl].longUrl = longUrl;
   urlDatabase[shortUrl].private = private;
   urlDatabase[shortUrl].userId = userId;
+  urlDatabase[shortUrl].username = username;
   urlDatabase[shortUrl].created = date;
   urlDatabase[shortUrl].updated = '';
   urlDatabase[shortUrl].hits = 0;
