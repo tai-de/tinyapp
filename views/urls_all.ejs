@@ -39,14 +39,16 @@
                       <a href="/u/<%= id %>" target="_blank">
                         <%= id %>
                       </a>
-                      <% if (urls[id].private) { %>
-                        <button type="button" class="badge badge-pill badge-danger d-none d-sm-inline" disabled>
+                      <% if (urls[id].private ==='true' ) { %>
+                        <span class="badge badge-pill badge-danger d-none d-sm-inline" data-toggle="tooltip"
+                          data-placement="top" title="created by <%= urls[id].username %>">
                           <small>Private</small>
-                        </button>
+                        </span>
                         <% } else { %>
-                          <button type="button" class="badge badge-pill badge-success d-none d-sm-inline" disabled>
+                          <span class="badge badge-pill badge-success d-none d-sm-inline" data-toggle="tooltip"
+                            data-placement="top" title="created by <%= urls[id].username %>">
                             <small>Public</small>
-                          </button>
+                          </span>
                           <% } %>
                             <% if(Date().toString().substring(0,10)===urls[id].created.toString().substring(0,10) &&
                               Date().toString().substring(0,10)!==urls[id].updated.toString().substring(0,10)) { %>

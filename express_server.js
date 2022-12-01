@@ -18,13 +18,13 @@ const users = {
   "x12b": {
     id: "x12b",
     email: "user@example.com",
-    username: "user1",
+    username: "Example #1",
     password: "purple-monkey-dinosaur",
   },
   "81v3": {
     id: "81v3",
     email: "user2@example.com",
-    username: "user2",
+    username: "Example #2",
     password: "dishwasher-funk",
   },
 };
@@ -32,8 +32,9 @@ const users = {
 const urlDatabase = {
   "b2xVn2": {
     longUrl: "http://www.lighthouselabs.ca",
-    private: true,
+    private: 'true',
     userId: "x12b",
+    username: "user1",
     created: new Date(Date.parse('2022-11-27T21:40:51.059Z')),
     updated: new Date(Date.parse('2022-11-29T08:10:51.059Z')),
     hits: 0,
@@ -41,8 +42,9 @@ const urlDatabase = {
   },
   "9sm5xK": {
     longUrl: "http://www.google.com",
-    private: false,
+    private: 'false',
     userId: "x12b",
+    username: "user1",
     created: new Date(Date.parse('2022-11-25T22:44:51.059Z')),
     updated: new Date(Date.parse('2022-11-28T20:01:51.059Z')),
     hits: 0,
@@ -50,8 +52,9 @@ const urlDatabase = {
   },
   "8va2xM": {
     longUrl: "http://www.youtube.com",
-    private: false,
+    private: 'false',
     userId: "x12b",
+    username: "user1",
     created: '',
     updated: '',
     hits: 0,
@@ -59,8 +62,9 @@ const urlDatabase = {
   },
   "b6UTxQ": {
     longUrl: "https://www.tsn.ca",
-    private: false,
+    private: 'false',
     userId: "81v3",
+    username: "user2",
     created: new Date(Date.parse('2022-11-26T23:56:51.059Z')),
     updated: new Date(Date.parse('2022-11-27T13:24:51.059Z')),
     hits: 0,
@@ -111,7 +115,7 @@ const getAllUrls = function(userId) {
     if (urlOwner === userId) {
       filteredUrlDb[key] = urlObj;
       continue;
-    } else if (!urlObj.private) {
+    } else if (urlObj.private === 'false') {
       filteredUrlDb[key] = urlObj;
     }
   }
@@ -136,7 +140,7 @@ app.get("/register", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = { user: users[req.cookies['user_id']], appName };
 
-  if (userId) {
+  if (userId && userLookup(userId, 'id')) {
     return res.redirect('/urls');
   }
 
@@ -147,7 +151,7 @@ app.get("/login", (req, res) => {
   const templateVars = { user: users[req.cookies['user_id']], appName };
   const userId = req.cookies['user_id'];
 
-  if (userId) {
+  if (userId && userLookup(userId, 'id')) {
     return res.redirect('/urls');
   }
 
@@ -165,7 +169,7 @@ app.get("/urls", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = { urls: urlsForUser(userId), user: users[userId], appName };
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("urls_error", errorVars);
   }
@@ -177,7 +181,7 @@ app.get("/urls/new", (req, res) => {
   const userId = req.cookies['user_id'];
   const templateVars = { user: users[userId], appName };
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("urls_error", errorVars);
   }
@@ -191,7 +195,7 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const userUrls = urlsForUser(userId);
   const editStatus = req.path.indexOf("/edit") > -1;
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("urls_error", errorVars);
   }
@@ -201,10 +205,10 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
     return res.status(401).render("urls_error", errorVars);
   }
 
-  if (!urlDatabase[shortUrl] && userId) {
+  if (!urlDatabase[shortUrl] && (userId && userLookup(userId, 'id'))) {
     res.redirect('/urls/new');
   }
-  if (!urlDatabase[shortUrl] && !userId) {
+  if (!urlDatabase[shortUrl] && (!userId || !userLookup(userId, 'id'))) {
     res.redirect('/login');
   }
 
@@ -255,7 +259,7 @@ app.post("/urls", (req, res) => {
   const date = new Date();
   const userId = req.cookies['user_id'];
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     return res.redirect('/login');
   }
 
@@ -279,8 +283,9 @@ app.post("/urls/:id", (req, res) => {
   const userId = req.cookies['user_id'];
   const shortUrl = req.params.id;
   const longUrl = req.body["longURL"];
+  const makePrivate = req.body["private"];
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("urls_error", errorVars);
   }
@@ -297,6 +302,7 @@ app.post("/urls/:id", (req, res) => {
 
   urlDatabase[shortUrl].longUrl = longUrl;
   urlDatabase[shortUrl].updated = date;
+  urlDatabase[shortUrl].private = makePrivate;
   res.redirect(`/urls`);
 });
 
@@ -305,7 +311,7 @@ app.post("/urls/:id/delete", (req, res) => {
   const userId = req.cookies['user_id'];
   const shortUrl = req.params.id;
 
-  if (!userId) {
+  if (!userId || !userLookup(userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("urls_error", errorVars);
   }
