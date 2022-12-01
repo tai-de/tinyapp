@@ -14,7 +14,6 @@ const {
 const app = express();
 const PORT = 8080; // default port 8080
 
-
 app.set("view engine", "ejs");
 
 app.use(methodOverride('_method'));
@@ -26,6 +25,10 @@ app.use(cookieSession({
 }));
 
 const appName = "TinyApp";
+
+//
+// DATABASES
+//
 
 const users = {
   "x12b": {
@@ -86,11 +89,13 @@ const urlDatabase = {
 };
 
 //
-// ROUTES FOR GET REQ
+// GET ROUTING FOR ROOT REDIRECT AND LOGIN/REGISTER PAGES
 //
 
 app.get("/", (req, res) => {
   const userId = req.session['user_id'];
+
+  // Check if userId stored in session exists/is logged in
 
   if (userId) {
     return res.redirect('/urls');
@@ -103,6 +108,8 @@ app.get("/register", (req, res) => {
   const userId = req.session['user_id'];
   const templateVars = { user: users[req.session['user_id']], appName };
 
+  // Check if userId stored in session exists/is logged in
+
   if (userId && userLookup(users, userId, 'id')) {
     return res.redirect('/urls');
   }
@@ -114,12 +121,18 @@ app.get("/login", (req, res) => {
   const templateVars = { user: users[req.session['user_id']], appName };
   const userId = req.session['user_id'];
 
+  // Check if userId stored in session exists/is logged in
+
   if (userId && userLookup(users, userId, 'id')) {
     return res.redirect('/urls');
   }
 
   res.render("urls_login", templateVars);
 });
+
+//
+// GET ROUTING FOR ALL URLS AND MY URLS PAGES
+//
 
 app.get("/urls/all", (req, res) => {
   const userId = req.session['user_id'];
@@ -132,6 +145,8 @@ app.get("/urls", (req, res) => {
   const userId = req.session['user_id'];
   const templateVars = { urls: urlsForUser(urlDatabase, userId), user: users[userId], appName };
 
+  // Check if userId stored in session exists/is logged in
+
   if (!userId || !userLookup(users, userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
@@ -140,9 +155,15 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//
+// GET ROUTING FOR CREATING NEW SHORTURL
+//
+
 app.get("/urls/new", (req, res) => {
   const userId = req.session['user_id'];
   const templateVars = { user: users[userId], appName };
+
+  // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
@@ -152,25 +173,38 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//
+// GET ROUTING FOR VIEWING SHORTURL STATS / EDIT PAGE
+//
+
 app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const userId = req.session['user_id'];
   const shortUrl = req.params.id;
   const userUrls = urlsForUser(urlDatabase, userId);
   const editStatus = req.path.indexOf("/edit") > -1;
 
+  // Check if userId stored in session exists/is logged in
+
   if (!userId || !userLookup(users, userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
+
+  // Check if the shortUrl exists and if the user is the owner
 
   if (urlDatabase[shortUrl] && userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
+  // Redirect to create new shortUrl if the requested one does not exist & user is logged in
+
   if (!urlDatabase[shortUrl] && (userId && userLookup(users, userId, 'id'))) {
     res.redirect('/urls/new');
   }
+  
+  // Redirect to login if requested shortUrl does not exist & user does not exist
+
   if (!urlDatabase[shortUrl] && (!userId || !userLookup(users, userId, 'id'))) {
     res.redirect('/login');
   }
@@ -185,17 +219,24 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// redirect from /u/id to long url
+//
+// GET ROUTING FOR U/SHORTURL REDIRECT TO LONGURL
+//
+
 app.get("/u/:id", (req, res) => {
   const date = new Date();
   const shortUrl = req.params.id;
   // const userId = req.session['user_id'];
   let visitorId = req.session['visitor_id'];
 
+  // Check if the user already has a visitorId created (used for stats)
+
   if (!visitorId) {
     visitorId = '#' + generateRandomString(4, users);
     req.session['visitor_id'] = visitorId;
   }
+
+  // Check if the shortUrl exists
 
   if (!urlDatabase[shortUrl]) {
     const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
@@ -203,6 +244,8 @@ app.get("/u/:id", (req, res) => {
   }
 
   const longUrl = urlDatabase[shortUrl].longUrl;
+
+  // Check if the uniqueHits array for the shortUrl already includes this visitor (using checkUniqueHits helper)
 
   if (!checkUniqueHits(urlDatabase[shortUrl], visitorId)) {
     const uniqueHit = { visitor: visitorId, date };
@@ -214,7 +257,10 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longUrl);
 });
 
-// 404/catch-all
+//
+// GET ROUTING FOR 404
+//
+
 app.get("*", (req, res) => {
   // res.redirect('/urls');
   const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Page not found.', appName };
@@ -222,13 +268,14 @@ app.get("*", (req, res) => {
 });
 
 //
-// ROUTES FOR POST REQ
+// POST ROUTING FOR CREATING NEW SHORTURL
 //
 
-// add new url
 app.post("/urls", (req, res) => {
   const date = new Date();
   const userId = req.session['user_id'];
+
+  // Prevent unregistered/logged out users from creating shortUrl
 
   if (!userId || !userLookup(users, userId, 'id')) {
     return res.redirect('/login');
@@ -248,7 +295,10 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortUrl}`);
 });
 
-// update existing url
+//
+// POST (PUT) ROUTING FOR UPDATING EXISTING SHORTURL
+//
+
 app.put("/urls/:id", (req, res) => {
   const date = new Date();
   const userId = req.session['user_id'];
@@ -256,15 +306,21 @@ app.put("/urls/:id", (req, res) => {
   const longUrl = req.body["longURL"];
   const makePrivate = req.body["private"];
 
+  // Check if userId stored in session exists/is logged in
+
   if (!userId || !userLookup(users, userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
+  // Check if the shortUrl being edited exists
+
   if (!urlDatabase[shortUrl]) {
     const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
     return res.status(404).render("error_page", errorVars);
   }
+
+  // Check if the shortUrl belongs to the user attempting an edit
 
   if (userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
@@ -277,20 +333,29 @@ app.put("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// delete existing url
+//
+// POST (DELETE) ROUTING FOR DELETING EXISTING SHORTURL
+//
+
 app.delete("/urls/:id", (req, res) => {
   const userId = req.session['user_id'];
   const shortUrl = req.params.id;
+
+  // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
     const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
+  // Check if the shortUrl being deleted exists
+
   if (!urlDatabase[shortUrl]) {
     const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
     return res.status(404).render("error_page", errorVars);
   }
+  
+  // Check if the shortUrl belongs to the user requesting deletion
 
   if (userId !== urlDatabase[shortUrl].userId) {
     const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
@@ -301,7 +366,10 @@ app.delete("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// register
+//
+// POST ROUTING FOR REGISTERING NEW USER
+//
+
 app.post("/register", (req, res) => {
   const date = [new Date()];
   const userId = generateRandomString(4, users);
@@ -310,17 +378,24 @@ app.post("/register", (req, res) => {
   const userPassword = req.body["password"];
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
 
-
   console.log('new registration attempt from:', userEmail);
+
+  // Check if any submitted fields were empty
 
   if (userEmail === '' || userUsername === '' || userPassword === '') {
     const errorVars = { code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
   }
+
+  // Check if email address has already registered (using userLookup helper)
+
   if (userLookup(users, userEmail)) {
     const errorVars = { code: 400, message: 'Invalid entry: Email address in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
   }
+
+  // Check if username has already been selected by another user (using userLookup helper)
+
   if (userLookup(users, userUsername, 'username')) {
     const errorVars = { code: 400, message: 'Invalid entry: Username in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
@@ -334,7 +409,10 @@ app.post("/register", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// login
+//
+// POST ROUTING FOR LOGGING IN
+//
+
 app.post("/login", (req, res) => {
   const date = [new Date()];
   const loginEmail = req.body["email"].toLowerCase();
@@ -346,10 +424,15 @@ app.post("/login", (req, res) => {
 
   console.log('new login attempt from:', userId, loginEmail);
 
+  // Check if user email exists (using userLookup helper)
+
   if (!userEmail) {
     const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("error_page", errorVars);
   }
+
+  // Check if password matches (truthy stored in variable from bcrypt.compareSync)
+
   if (!passCheck) {
     const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("error_page", errorVars);
@@ -363,13 +446,20 @@ app.post("/login", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// logout
+//
+// POST ROUTING FOR LOGGING OUT
+//
+
 app.post("/logout", (req, res) => {
   const userId = req.session['user_id'];
   console.log('user logged out:', userId);
   res.clearCookie('session');
   res.redirect(`/login`);
 });
+
+//
+// SERVER LISTENING
+//
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
