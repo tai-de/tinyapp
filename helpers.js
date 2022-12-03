@@ -69,7 +69,7 @@ const updateUrlDatabase = function(urlDb, userDb, oldUserId, newUserId) {
   const urlIds = Object.keys(urlDb);
 
   for (const id of urlIds) {
-    if(urlDb[id].userId === oldUserId) {
+    if (urlDb[id].userId === oldUserId) {
       urlDb[id].userId = newUserId;
       urlDb[id].username = newUserName;
     }

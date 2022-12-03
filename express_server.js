@@ -252,6 +252,7 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
     edit: editStatus,
     username,
     userEmail,
+    userTheme,
     appName
   };
   res.render("urls_show", templateVars);
