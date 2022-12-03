@@ -19,7 +19,7 @@
         </div>
         <div class="card-body form-group table-responsive">
           <div class="text-muted small" style="margin-bottom: 10px;">
-            <i>All public URLs <%= locals.user ? '(and any private URLs owned by you) ' : '' %>are listed below.</i>
+            <i>All public URLs <%= locals.username ? '(and any private URLs owned by you) ' : '' %>are listed below.</i>
           </div>
 
           <table class="table table-striped table-hover">
@@ -41,12 +41,12 @@
                       </a>
                       <% if (urls[id].private==='true' ) { %>
                         <span class="badge badge-pill badge-danger d-none d-sm-inline" data-toggle="tooltip"
-                          data-placement="top" title="created by <%= urls[id].username %>">
+                          data-placement="top" title="owned by <%= urls[id].username %>">
                           <small>Private</small>
                         </span>
                         <% } else { %>
                           <span class="badge badge-pill badge-success d-none d-sm-inline" data-toggle="tooltip"
-                            data-placement="top" title="created by <%= urls[id].username %>">
+                            data-placement="top" title="owned by <%= urls[id].username %>">
                             <small>Public</small>
                           </span>
                           <% } %>

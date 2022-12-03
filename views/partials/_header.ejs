@@ -2,7 +2,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300&display=swap');
   </style>
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+  <nav class="navbar navbar-expand-md navbar-dark bg-<%= locals.userTheme ? userTheme : 'dark' %>">
     <a class="navbar-brand" style="font-family: 'Raleway', sans-serif;
         font-size: 24px;
         line-height: 0px;
@@ -11,18 +11,45 @@
         -ms-user-select: none;
         user-select: none;
         width: 7.5rem;" href="/">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="24" height="24"><path fill-rule="evenodd" d="M20.322.75a10.75 10.75 0 00-7.373 2.926l-1.304 1.23A23.743 23.743 0 0010.103 6.5H5.066a1.75 1.75 0 00-1.5.85l-2.71 4.514a.75.75 0 00.49 1.12l4.571.963c.039.049.082.096.129.14L8.04 15.96l1.872 1.994c.044.047.091.09.14.129l.963 4.572a.75.75 0 001.12.488l4.514-2.709a1.75 1.75 0 00.85-1.5v-5.038a23.741 23.741 0 001.596-1.542l1.228-1.304a10.75 10.75 0 002.925-7.374V2.499A1.75 1.75 0 0021.498.75h-1.177zM16 15.112c-.333.248-.672.487-1.018.718l-3.393 2.262.678 3.223 3.612-2.167a.25.25 0 00.121-.214v-3.822zm-10.092-2.7L8.17 9.017c.23-.346.47-.685.717-1.017H5.066a.25.25 0 00-.214.121l-2.167 3.612 3.223.679zm8.07-7.644a9.25 9.25 0 016.344-2.518h1.177a.25.25 0 01.25.25v1.176a9.25 9.25 0 01-2.517 6.346l-1.228 1.303a22.248 22.248 0 01-3.854 3.257l-3.288 2.192-1.743-1.858a.764.764 0 00-.034-.034l-1.859-1.744 2.193-3.29a22.248 22.248 0 013.255-3.851l1.304-1.23zM17.5 8a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-11 13c.9-.9.9-2.6 0-3.5-.9-.9-2.6-.9-3.5 0-1.209 1.209-1.445 3.901-1.49 4.743a.232.232 0 00.247.247c.842-.045 3.534-.281 4.743-1.49z"></path></svg>
-      <span style="padding-left: 0.5rem;"><%= appName %></span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff" width="24" height="24">
+        <path fill-rule="evenodd"
+          d="M20.322.75a10.75 10.75 0 00-7.373 2.926l-1.304 1.23A23.743 23.743 0 0010.103 6.5H5.066a1.75 1.75 0 00-1.5.85l-2.71 4.514a.75.75 0 00.49 1.12l4.571.963c.039.049.082.096.129.14L8.04 15.96l1.872 1.994c.044.047.091.09.14.129l.963 4.572a.75.75 0 001.12.488l4.514-2.709a1.75 1.75 0 00.85-1.5v-5.038a23.741 23.741 0 001.596-1.542l1.228-1.304a10.75 10.75 0 002.925-7.374V2.499A1.75 1.75 0 0021.498.75h-1.177zM16 15.112c-.333.248-.672.487-1.018.718l-3.393 2.262.678 3.223 3.612-2.167a.25.25 0 00.121-.214v-3.822zm-10.092-2.7L8.17 9.017c.23-.346.47-.685.717-1.017H5.066a.25.25 0 00-.214.121l-2.167 3.612 3.223.679zm8.07-7.644a9.25 9.25 0 016.344-2.518h1.177a.25.25 0 01.25.25v1.176a9.25 9.25 0 01-2.517 6.346l-1.228 1.303a22.248 22.248 0 01-3.854 3.257l-3.288 2.192-1.743-1.858a.764.764 0 00-.034-.034l-1.859-1.744 2.193-3.29a22.248 22.248 0 013.255-3.851l1.304-1.23zM17.5 8a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-11 13c.9-.9.9-2.6 0-3.5-.9-.9-2.6-.9-3.5 0-1.209 1.209-1.445 3.901-1.49 4.743a.232.232 0 00.247.247c.842-.045 3.534-.281 4.743-1.49z">
+        </path>
+      </svg>
+      <span style="padding-left: 0.5rem;">
+        <%= appName %>
+      </span>
     </a>
-    <div class="navbar-nav mr-auto"">
-      <span class="nav-item nav-link active d-md-none position-relative font-weight-light" style="left: 0.5rem;">Welcome, <b>
-          <%= locals.user ? user.username : 'stranger' %>
-        </b>!</span>
-      <button class="navbar-toggler position-fixed" style="top: 0.5rem; right: 1rem;" type="button"
-        data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup"
-        aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+    <div class="navbar-nav mr-auto">
+      <button class="navbar-toggler position-fixed text-white" style="top: 0.5rem; right: 1rem; padding-bottom: 6px; vertical-align: middle;"
+        type="button" id="menuButton" onclick="toggleMenu()" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <svg id="menu-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16"
+          height="16">
+          <path fill-rule="evenodd"
+            d="M1 2.75A.75.75 0 011.75 2h12.5a.75.75 0 110 1.5H1.75A.75.75 0 011 2.75zm0 5A.75.75 0 011.75 7h12.5a.75.75 0 110 1.5H1.75A.75.75 0 011 7.75zM1.75 12a.75.75 0 100 1.5h12.5a.75.75 0 100-1.5H1.75z">
+          </path>
+        </svg>
+        <svg class="d-none" id="menu-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+          width="16" height="16">
+          <path fill-rule="evenodd"
+            d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z">
+          </path>
+        </svg>
       </button>
+      <script>
+
+        const toggleMenu = document.querySelector('#menuButton');
+        const menuOpen = document.querySelector('#menu-open');
+        const menuClosed = document.querySelector('#menu-closed');
+      
+        toggleMenu.addEventListener('click', function(e) {
+          menuOpen.classList.toggle( "d-none" )
+          menuClosed.classList.toggle( "d-none" )
+        });
+      
+      
+      </script>
     </div>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <ul class="navbar-nav mr-auto">
@@ -35,15 +62,28 @@
         <li class="nav-item">
           <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         </li>
+        <% if (username !==null) { %>
+          <li class="nav-item d-md-none">
+            <a class="nav-item nav-link" href="/profile">Edit profile</a>
+          </li>
+          <% } %>
       </ul>
-      <div class="navbar-nav d-inline-block justify-content-around" style="min-width: 16rem;">
+      <div class="navbar-nav nav-item d-inline-block justify-content-around" style="min-width: 16rem;">
         <span class="nav-item nav-link active d-none d-md-inline-block font-weight-light">Welcome, <b>
-            <%= locals.user ? user.username : 'stranger' %>
-          </b>! <span class="d-none d-lg-inline-block text-muted"><small><i><%= locals.user ? '(signed in with ' + user.email + ')': '' %></i></small></span></span>
-        <% if (typeof user !=='undefined' ) {%>
+            <% if (username !==null) { %>
+              <a href="/profile" class="text-white"><u>
+                  <%= username %>
+                </u></a>
+              <% } else { %>
+                stranger
+                <% } %>
+          </b>! <span class="d-none d-lg-inline-block text-light"><small><i>
+                <%= locals.userEmail ? '(signed in with ' + userEmail + ')' : '' %>
+              </i></small></span></span>
+        <% if (username !==null) {%>
           <form class="form-inline d-inline-block" action="/logout" method="POST">
             <div class="input-group">
-              <button type="submit" class="btn btn-outline-secondary btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
+              <button type="submit" class="btn btn-outline-light btn-sm"><svg xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16" fill="currentColor" width="16" height="16" style="margin-bottom:2px;">
                   <path fill-rule="evenodd"
                     d="M2 2.75C2 1.784 2.784 1 3.75 1h2.5a.75.75 0 010 1.5h-2.5a.25.25 0 00-.25.25v10.5c0 .138.112.25.25.25h2.5a.75.75 0 010 1.5h-2.5A1.75 1.75 0 012 13.25V2.75zm10.44 4.5H6.75a.75.75 0 000 1.5h5.69l-1.97 1.97a.75.75 0 101.06 1.06l3.25-3.25a.75.75 0 000-1.06l-3.25-3.25a.75.75 0 10-1.06 1.06l1.97 1.97z">

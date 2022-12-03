@@ -61,10 +61,27 @@ const checkUniqueHits = function(shortUrlDb, id) {
   return false;
 };
 
+// updates the url database for all records owned by oldUserId
+// assignes newUserId & respective username for all records
+const updateUrlDatabase = function(urlDb, userDb, oldUserId, newUserId) {
+  const newUserName = userLookup(userDb, newUserId, 'id', 'username');
+
+  const urlIds = Object.keys(urlDb);
+
+  for (const id of urlIds) {
+    if(urlDb[id].userId === oldUserId) {
+      urlDb[id].userId = newUserId;
+      urlDb[id].username = newUserName;
+    }
+  }
+
+};
+
 module.exports = {
   generateRandomString,
   userLookup,
   urlsForUser,
   getAllUrls,
-  checkUniqueHits
+  checkUniqueHits,
+  updateUrlDatabase
 };

@@ -8,7 +8,8 @@ const {
   userLookup,
   urlsForUser,
   getAllUrls,
-  checkUniqueHits
+  checkUniqueHits,
+  updateUrlDatabase
 } = require('./helpers');
 
 const app = express();
@@ -34,14 +35,16 @@ const users = {
   "x12b": {
     id: "x12b",
     email: "user@example.com",
-    username: "Example #1",
+    username: "Example 1",
     password: "$2a$10$EYcB7T6tt.io9IgF8gCQhOzlsNUEQdkWycSuiQ3evCrAPKAlVU5Ne",
+    theme: 'dark',
   },
   "81v3": {
     id: "81v3",
     email: "user2@example.com",
-    username: "Example #2",
+    username: "Example 2",
     password: "$2a$10$Ot2RG54I9TxlHrt0eAcZeOEUllm.v2hEnBRPbFsCzQf0OBhXWa4Oa",
+    theme: 'danger',
   },
 };
 
@@ -89,7 +92,7 @@ const urlDatabase = {
 };
 
 //
-// GET ROUTING FOR ROOT REDIRECT AND LOGIN/REGISTER PAGES
+// GET ROUTING FOR ROOT REDIRECT, LOGIN/REGISTER, AND PROFILE PAGES
 //
 
 app.get("/", (req, res) => {
@@ -106,7 +109,10 @@ app.get("/", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.session['user_id'];
-  const templateVars = { user: users[req.session['user_id']], appName };
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { username, userEmail, userTheme, appName };
 
   // Check if userId stored in session exists/is logged in
 
@@ -114,12 +120,15 @@ app.get("/register", (req, res) => {
     return res.redirect('/urls');
   }
 
-  res.render("urls_register", templateVars);
+  res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { user: users[req.session['user_id']], appName };
   const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { username, userEmail, userTheme, appName };
 
   // Check if userId stored in session exists/is logged in
 
@@ -127,7 +136,23 @@ app.get("/login", (req, res) => {
     return res.redirect('/urls');
   }
 
-  res.render("urls_login", templateVars);
+  res.render("login", templateVars);
+});
+
+app.get("/profile", (req, res) => {
+  const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { username, userEmail, userTheme, appName };
+
+  if (!userId || !userLookup(users, userId, 'id')) {
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("error_page", errorVars);
+  }
+
+  res.render("profile", templateVars);
+
 });
 
 //
@@ -136,19 +161,25 @@ app.get("/login", (req, res) => {
 
 app.get("/urls/all", (req, res) => {
   const userId = req.session['user_id'];
-  const templateVars = { urls: getAllUrls(urlDatabase, userId), user: users[userId], appName };
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { urls: getAllUrls(urlDatabase, userId), username, userEmail, userTheme, appName };
 
   res.render("urls_all", templateVars);
 });
 
 app.get("/urls", (req, res) => {
   const userId = req.session['user_id'];
-  const templateVars = { urls: urlsForUser(urlDatabase, userId), user: users[userId], appName };
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { urls: urlsForUser(urlDatabase, userId), username, userEmail, userTheme, appName };
 
   // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
@@ -161,12 +192,15 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.session['user_id'];
-  const templateVars = { user: users[userId], appName };
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const templateVars = { username, userEmail, userTheme, appName };
 
   // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
@@ -179,6 +213,9 @@ app.get("/urls/new", (req, res) => {
 
 app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
   const shortUrl = req.params.id;
   const userUrls = urlsForUser(urlDatabase, userId);
   const editStatus = req.path.indexOf("/edit") > -1;
@@ -186,14 +223,14 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
   // Check if the shortUrl exists and if the user is the owner
 
   if (urlDatabase[shortUrl] && userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! This URL does not belong to you so the details are restricted.', cta: { url: `../u/${shortUrl}`, display: 'Click here to visit the URL.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
@@ -202,7 +239,7 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   if (!urlDatabase[shortUrl] && (userId && userLookup(users, userId, 'id'))) {
     res.redirect('/urls/new');
   }
-  
+
   // Redirect to login if requested shortUrl does not exist & user does not exist
 
   if (!urlDatabase[shortUrl] && (!userId || !userLookup(users, userId, 'id'))) {
@@ -212,8 +249,9 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
   const templateVars = {
     id: shortUrl,
     urlObj: userUrls[shortUrl],
-    user: users[req.session['user_id']],
     edit: editStatus,
+    username,
+    userEmail,
     appName
   };
   res.render("urls_show", templateVars);
@@ -226,7 +264,10 @@ app.get(["/urls/:id", "/urls/:id/edit"], (req, res) => {
 app.get("/u/:id", (req, res) => {
   const date = new Date();
   const shortUrl = req.params.id;
-  // const userId = req.session['user_id'];
+  const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
   let visitorId = req.session['visitor_id'];
 
   // Check if the user already has a visitorId created (used for stats)
@@ -239,7 +280,7 @@ app.get("/u/:id", (req, res) => {
   // Check if the shortUrl exists
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    const errorVars = { username, userEmail, userTheme, code: 404, message: 'Not found! This short URL does not exist.', appName };
     return res.status(404).render("error_page", errorVars);
   }
 
@@ -262,8 +303,11 @@ app.get("/u/:id", (req, res) => {
 //
 
 app.get("*", (req, res) => {
-  // res.redirect('/urls');
-  const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Page not found.', appName };
+  const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const errorVars = { username, userEmail, userTheme, code: 404, message: 'Page not found.', appName };
   return res.status(404).render("error_page", errorVars);
 });
 
@@ -305,6 +349,9 @@ app.post("/urls", (req, res) => {
 app.put("/urls/:id", (req, res) => {
   const date = new Date();
   const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
   const shortUrl = req.params.id;
   const longUrl = req.body["longURL"];
   const makePrivate = req.body["private"];
@@ -312,27 +359,85 @@ app.put("/urls/:id", (req, res) => {
   // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
   // Check if the shortUrl being edited exists
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    const errorVars = { username, userEmail, userTheme, code: 404, message: 'Not found! This short URL does not exist.', appName };
     return res.status(404).render("error_page", errorVars);
   }
 
   // Check if the shortUrl belongs to the user attempting an edit
 
   if (userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
     return res.status(401).render("error_page", errorVars);
   }
 
   urlDatabase[shortUrl].longUrl = longUrl;
   urlDatabase[shortUrl].updated = date;
   urlDatabase[shortUrl].private = makePrivate;
+
+  res.redirect(`/urls`);
+});
+
+//
+// POST (PUT) ROUTING FOR UPDATING EXISTING SHORTURL OWNER
+//
+
+app.put("/urls/:id/reassign", (req, res) => {
+  const date = new Date();
+  const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const shortUrl = req.params.id;
+  const newOwnerUsername = req.body["newOwner"];
+
+  // Check if userId stored in session exists/is logged in
+
+  if (!userId || !userLookup(users, userId, 'id')) {
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    return res.status(401).render("error_page", errorVars);
+  }
+
+  // Check if the shortUrl being edited exists
+
+  if (!urlDatabase[shortUrl]) {
+    const errorVars = { username, userEmail, userTheme, code: 404, message: 'Not found! This short URL does not exist.', appName };
+    return res.status(404).render("error_page", errorVars);
+  }
+
+  // Check if the shortUrl belongs to the user attempting an edit
+
+  if (userId !== urlDatabase[shortUrl].userId) {
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
+    return res.status(401).render("error_page", errorVars);
+  }
+
+  // Check if the new owner username is the same as current owner
+
+  if (username === newOwnerUsername) {
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entry. This URL already belongs to you.', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    return res.status(401).render("error_page", errorVars);
+  }
+
+  // Check if the new owner username is valid
+
+  if (!userLookup(users, newOwnerUsername, 'username')) {
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entry. The requested username for reassignment does not exist.', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    return res.status(401).render("error_page", errorVars);
+  }
+
+  const newOwnerId = userLookup(users, newOwnerUsername, 'username', 'id');
+
+  urlDatabase[shortUrl].updated = date;
+  urlDatabase[shortUrl].userId = newOwnerId;
+  urlDatabase[shortUrl].username = newOwnerUsername;
+
   res.redirect(`/urls`);
 });
 
@@ -342,26 +447,29 @@ app.put("/urls/:id", (req, res) => {
 
 app.delete("/urls/:id", (req, res) => {
   const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
   const shortUrl = req.params.id;
 
   // Check if userId stored in session exists/is logged in
 
   if (!userId || !userLookup(users, userId, 'id')) {
-    const errorVars = { code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! Please login first.', cta: { url: '/login', display: 'Click here to login.' }, appName };
     return res.status(401).render("error_page", errorVars);
   }
 
   // Check if the shortUrl being deleted exists
 
   if (!urlDatabase[shortUrl]) {
-    const errorVars = { user: users[req.session['user_id']], code: 404, message: 'Not found! This short URL does not exist.', appName };
+    const errorVars = { username, userEmail, userTheme, code: 404, message: 'Not found! This short URL does not exist.', appName };
     return res.status(404).render("error_page", errorVars);
   }
-  
+
   // Check if the shortUrl belongs to the user requesting deletion
 
   if (userId !== urlDatabase[shortUrl].userId) {
-    const errorVars = { user: users[req.session['user_id']], code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
+    const errorVars = { username, userEmail, userTheme, code: 401, message: 'Unauthorized! This URL does not belong to you so you cannot edit or delete it.', appName };
     return res.status(401).render("error_page", errorVars);
   }
 
@@ -386,21 +494,21 @@ app.post("/register", (req, res) => {
   // Check if any submitted fields were empty
 
   if (userEmail === '' || userUsername === '' || userPassword === '') {
-    const errorVars = { code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entries: Enter all fields!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
   }
 
   // Check if email address has already registered (using userLookup helper)
 
   if (userLookup(users, userEmail)) {
-    const errorVars = { code: 400, message: 'Invalid entry: Email address in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entry: Email address in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
   }
 
   // Check if username has already been selected by another user (using userLookup helper)
 
   if (userLookup(users, userUsername, 'username')) {
-    const errorVars = { code: 400, message: 'Invalid entry: Username in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entry: Username in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
     return res.status(400).render("error_page", errorVars);
   }
 
@@ -430,14 +538,14 @@ app.post("/login", (req, res) => {
   // Check if user email exists (using userLookup helper)
 
   if (!userEmail) {
-    const errorVars = { code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 403, message: 'Invalid entry: Email address does not exist!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("error_page", errorVars);
   }
 
   // Check if password matches (truthy stored in variable from bcrypt.compareSync)
 
   if (!passCheck) {
-    const errorVars = { code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
+    const errorVars = { username, userEmail, userTheme, code: 403, message: 'Invalid entry: Password is incorrect!', cta: { url: '/login', display: 'Click here to try again.' }, appName };
     return res.status(403).render("error_page", errorVars);
   }
 
@@ -447,6 +555,34 @@ app.post("/login", (req, res) => {
 
   req.session['user_id'] = userId;
   res.redirect(`/urls`);
+});
+
+//
+// POST (PUT) ROUTING FOR UPDATING PROFILE
+//
+
+app.put("/profile", (req, res) => {
+  const userId = req.session['user_id'];
+  const username = users[userId] ? users[userId].username : null;
+  const userEmail = users[userId] ? users[userId].email : null;
+  const userTheme = users[userId] ? users[userId].theme : null;
+  const updateUsername = req.body["username"];
+  const updateTheme = req.body["colorPref"];
+
+  if (username !== updateUsername && userLookup(users, updateUsername, 'username')) {
+    const errorVars = { username, userEmail, userTheme, code: 400, message: 'Invalid entry: Username in use!', cta: { url: 'javascript:history.back()', display: 'Click here to try again.' }, appName };
+    return res.status(400).render("error_page", errorVars);
+  }
+
+  users[userId].username = updateUsername;
+
+  if (updateTheme !== '') {
+    users[userId].theme = updateTheme;
+  }
+
+  updateUrlDatabase(urlDatabase, users, userId, userId);
+
+  res.redirect(`/profile`);
 });
 
 //

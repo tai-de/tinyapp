@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <%- include('partials/_head.ejs') %>
+    <title>
+      <%= appName %> - Profile
+    </title>
+</head>
+
+<body>
+
+  <%- include('partials/_header.ejs') %>
+
+    <main style="margin: 1em;">
+
+      <div class="card" style="margin: 0 auto; max-width: 36rem;">
+        <div class="card-header">
+          <h4>Edit profile</h4>
+        </div>
+        <div class="card-body form-group">
+          <div class="text-muted small" style="margin-bottom: 10px;">
+            <i>You can change your username and site theme below.</i>
+          </div>
+          <form action="/profile?_method=PUT" method="POST">
+            <!-- <div class="input-group mb-3">
+              <div class="input-group-prepend"
+                style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                <label class="input-group-text" for="email" style="max-width: 8rem;" data-toggle="tooltip"
+                  data-placement="top" title="Your login email address."><svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+                    <path fill-rule="evenodd"
+                      d="M1.75 2A1.75 1.75 0 000 3.75v.736a.75.75 0 000 .027v7.737C0 13.216.784 14 1.75 14h12.5A1.75 1.75 0 0016 12.25v-8.5A1.75 1.75 0 0014.25 2H1.75zM14.5 4.07v-.32a.25.25 0 00-.25-.25H1.75a.25.25 0 00-.25.25v.32L8 7.88l6.5-3.81zm-13 1.74v6.441c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25V5.809L8.38 9.397a.75.75 0 01-.76 0L1.5 5.809z">
+                    </path>
+                  </svg><span class="d-none d-md-inline-block text-left"
+                    style="min-width: 5.25rem;">&ensp;Email</span></label>
+              </div>
+              <span class="form-control" id="email"
+                style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;"
+                data-toggle="tooltip" data-placement="top" title="Email changes are restricted.">
+                <%= userEmail %>
+              </span>
+            </div> -->
+
+            <div class="form-row">
+              <div class="col">
+                <div class="form-group input-group mb-3">
+                  <div class="input-group-prepend"
+                    style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                    <label class="input-group-text" class="input-group-text" for="username" style="max-width: 8rem;"
+                      data-toggle="tooltip" data-placement="top" title="Username (max. 10 char)"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16"
+                        height="16">
+                        <path fill-rule="evenodd"
+                          d="M4.75 2.37a6.5 6.5 0 006.5 11.26.75.75 0 01.75 1.298 8 8 0 113.994-7.273.754.754 0 01.006.095v1.5a2.75 2.75 0 01-5.072 1.475A4 4 0 1112 8v1.25a1.25 1.25 0 002.5 0V7.867a6.5 6.5 0 00-9.75-5.496V2.37zM10.5 8a2.5 2.5 0 10-5 0 2.5 2.5 0 005 0z">
+                        </path>
+                      </svg><span class="d-none d-md-inline-block text-left"
+                        style="min-width: 5.25rem;">&ensp;Username</label>
+                  </div>
+                  <input type="text" class="form-control" name="username" id="username" maxlength="10"
+                    placeholder="Choose a display name" value="<%= username %>" aria-label="Username"
+                    aria-describedby="basic-addon1">
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="form-row">
+              <div class="col">
+
+                <div class="form-group input-group mb-3">
+                  <div class="input-group-prepend"
+                    style="-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;">
+                    <label class="input-group-text" for="password" style="max-width: 8rem;" data-toggle="tooltip"
+                      data-placement="top" title="Password"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                        fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                          d="M6.5 5.5a4 4 0 112.731 3.795.75.75 0 00-.768.18L7.44 10.5H6.25a.75.75 0 00-.75.75v1.19l-.06.06H4.25a.75.75 0 00-.75.75v1.19l-.06.06H1.75a.25.25 0 01-.25-.25v-1.69l5.024-5.023a.75.75 0 00.181-.768A3.995 3.995 0 016.5 5.5zm4-5.5a5.5 5.5 0 00-5.348 6.788L.22 11.72a.75.75 0 00-.22.53v2C0 15.216.784 16 1.75 16h2a.75.75 0 00.53-.22l.5-.5a.75.75 0 00.22-.53V14h.75a.75.75 0 00.53-.22l.5-.5a.75.75 0 00.22-.53V12h.75a.75.75 0 00.53-.22l.932-.932A5.5 5.5 0 1010.5 0zm.5 6a1 1 0 100-2 1 1 0 000 2z">
+                        </path>
+                      </svg><span class="d-none d-md-inline-block text-left"
+                        style="min-width: 5.25rem;">&ensp;Password</span></label>
+                  </div>
+                  <input type="password" name="password" class="form-control" id="password" placeholder="Password"
+                    required>
+                </div>
+              </div>
+            </div> -->
+            <div class="form-row">
+              <div class="col">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <label class="input-group-text" class="input-group-text" for="colorPref" style="max-width: 8rem;"
+                      data-toggle="tooltip" data-placement="top" title="Color preference for site"><svg
+                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16">
+                        <path fill-rule="evenodd"
+                          d="M14.184 1.143a1.75 1.75 0 00-2.502-.57L.912 7.916a1.75 1.75 0 00-.53 2.32l.447.775a1.75 1.75 0 002.275.702l11.745-5.656a1.75 1.75 0 00.757-2.451l-1.422-2.464zm-1.657.669a.25.25 0 01.358.081l1.422 2.464a.25.25 0 01-.108.35l-2.016.97-1.505-2.605 1.85-1.26zM9.436 3.92l1.391 2.41-5.42 2.61-.942-1.63 4.97-3.39zM3.222 8.157l-1.466 1a.25.25 0 00-.075.33l.447.775a.25.25 0 00.325.1l1.598-.769-.83-1.436zm6.253 2.306a.75.75 0 00-.944-.252l-1.809.87a.75.75 0 00-.293.253L4.38 14.326a.75.75 0 101.238.848l1.881-2.75v2.826a.75.75 0 001.5 0v-2.826l1.881 2.75a.75.75 0 001.238-.848l-2.644-3.863z">
+                        </path>
+                      </svg><span class="d-none d-md-inline-block text-left" style="min-width: 5.25rem;">&ensp;Theme</label>
+                  </div>
+                  <select class="custom-select" name="colorPref">
+                    <option value="<%= userTheme %>" selected>Choose...</option>
+                    <option value="dark">Dark</option>
+                    <option value="primary">Blue</option>
+                    <option value="secondary">Gray</option>
+                    <option value="success">Green</option>
+                    <option value="danger">Red</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row  justify-content-between align-items-center" style="width: 100%">
+              <div class="col justify-content-between col-md-auto">
+                <button id="submitButton" type="submit" class="btn btn-primary" onclick="showWaiting()">Save
+                  changes</button>
+                <input type="reset" class="btn btn-success" value="Reset" />
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <%- include('partials/_footer.ejs') %>
+      <script>
+        function showWaiting() {
+          document.getElementById('submitButton').setAttribute('class', 'btn btn-secondary');
+          document.getElementById('submitButton').innerHTML = "Waiting...";
+        }
+      </script>
+
+</body>
+
+</html>
