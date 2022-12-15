@@ -490,8 +490,6 @@ app.post("/register", (req, res) => {
   const userPassword = req.body["password"];
   const hashedPassword = bcrypt.hashSync(userPassword, 10);
 
-  console.log('new registration attempt from:', userEmail);
-
   // Check if any submitted fields were empty
 
   if (userEmail === '' || userUsername === '' || userPassword === '') {
@@ -514,7 +512,6 @@ app.post("/register", (req, res) => {
   }
 
   users[userId] = { id: userId, email: userEmail, username: userUsername, password: hashedPassword };
-  console.log(`new user: [${userId}], email: ${userEmail}, username: ${userUsername}`);
   users[userId]._logins = [date];
 
   req.session['user_id'] = userId;
@@ -534,8 +531,6 @@ app.post("/login", (req, res) => {
   const userPass = userLookup(users, loginEmail, 'email', 'password');
   const passCheck = bcrypt.compareSync(loginPass, userPass);
 
-  console.log('new login attempt from:', userId, loginEmail);
-
   // Check if user email exists (using userLookup helper)
 
   if (!userEmail) {
@@ -550,9 +545,7 @@ app.post("/login", (req, res) => {
     return res.status(403).render("error_page", errorVars);
   }
 
-  console.log('successful login from:', userId, loginEmail);
   users[userId]._logins ? users[userId]._logins.push(date) : users[userId]._logins = [date];
-  console.log('login history:', users[userId]._logins);
 
   req.session['user_id'] = userId;
   res.redirect(`/urls`);
@@ -592,7 +585,6 @@ app.put("/profile", (req, res) => {
 
 app.post("/logout", (req, res) => {
   const userId = req.session['user_id'];
-  console.log('user logged out:', userId);
   res.clearCookie('session');
   res.redirect(`/login`);
 });
